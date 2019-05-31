@@ -82,7 +82,7 @@ public abstract class BaseExecutor implements Executor {
 
   @Override // 获取事务管理对象
   public Transaction getTransaction() {
-    if (closed) {
+    if (closed) { // 判断该执行器是否已经处于关闭中
       throw new ExecutorException("Executor was closed.");
     }
     return transaction;

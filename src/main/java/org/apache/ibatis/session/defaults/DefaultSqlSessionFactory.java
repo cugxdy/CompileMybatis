@@ -34,6 +34,7 @@ import org.apache.ibatis.transaction.managed.ManagedTransactionFactory;
 /**
  * @author Clinton Begin
  */
+// 它是用来创建SqlSession实现类对象的工厂
 public class DefaultSqlSessionFactory implements SqlSessionFactory {
 
   private final Configuration configuration;  // 配置读取的文件
@@ -78,21 +79,29 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
     return configuration;
   }
 
+  /**
+   * 创建sqlSession对象
+   * @param execType 执行器类型
+   * @param level 事务隔离级别
+   * @param autoCommit 是否自动提交
+   * @return
+   */
   private SqlSession openSessionFromDataSource(ExecutorType execType, TransactionIsolationLevel level, boolean autoCommit) {
     Transaction tx = null;
     try {
+      System.out.println("=====================创建SqlSession对象============================");
       // 获取mybatis-condig.xml配置文件配置的Environment对象
       final Environment environment = configuration.getEnvironment();
       
       // 创建TransactionFactory对象
       final TransactionFactory transactionFactory = getTransactionFactoryFromEnvironment(environment);
-      
+      System.out.println("ClassName = " + transactionFactory.getClass().getName());
       // 创建Transaction对象
       tx = transactionFactory.newTransaction(environment.getDataSource(), level, autoCommit);
       
       // 根据配置创建Executor对象
       final Executor executor = configuration.newExecutor(tx, execType);
-      
+      System.out.println("创建执行器对象-----" + executor.getClass().getName());
       // 创建默认DefaultSqlSession对象
       return new DefaultSqlSession(configuration, executor, autoCommit);
     } catch (Exception e) {
@@ -100,6 +109,7 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
       closeTransaction(tx); // may have fetched a connection so lets call close()
       throw ExceptionFactory.wrapException("Error opening session.  Cause: " + e, e);
     } finally {
+    	System.out.println("=======================================================================");
       ErrorContext.instance().reset();
     }
   }
@@ -133,6 +143,7 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
     }
   }
 
+  // 获取Environment对象中的TransactionFactory对象
   private TransactionFactory getTransactionFactoryFromEnvironment(Environment environment) {
     if (environment == null || environment.getTransactionFactory() == null) {
       return new ManagedTransactionFactory();
@@ -143,6 +154,7 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
   private void closeTransaction(Transaction tx) {
     if (tx != null) {
       try {
+    	  // 关闭数据库的连接。
         tx.close();
       } catch (SQLException ignore) {
         // Intentionally ignore. Prefer previous error.

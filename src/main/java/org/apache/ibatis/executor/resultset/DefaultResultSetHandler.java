@@ -204,7 +204,8 @@ public class DefaultResultSetHandler implements ResultSetHandler {
   //
   @Override
   public List<Object> handleResultSets(Statement stmt) throws SQLException {
-	    
+	 System.out.println("========================DefaultResultSetHandler处理结果集===========================");
+	  
 /*	 
  * 	 BEGIN (具体的执行SQL语句)
  *       select * from BLOG where id = ID;
@@ -256,6 +257,8 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     // 调用handleResultSet方法循环处理结果集
     // resultMapCount = 1; resultSetCount = 0; 
     while (rsw != null && resultMapCount > resultSetCount) { // (1) 遍历resultMaps集合
+    	System.out.println("resultMapCount = " + resultMapCount);
+    	System.out.println("resultSetCount = " + resultSetCount);
       // 获取结果集对应的ResultMap对象
       ResultMap resultMap = resultMaps.get(resultSetCount);
       
@@ -295,7 +298,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
         resultSetCount++;// 递增resultSetCount
       }
     }
-
+    System.out.println("==============================结果集映射结束=====================================");
     return collapseSingleResultList(multipleResults);
   }
  
@@ -399,6 +402,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
           handleRowValues(rsw, resultMap, defaultResultHandler, rowBounds, null);
           
           // 将DefaultResultHandler中保存的结果对象添加到multipleResults集合中
+          
           multipleResults.add(defaultResultHandler.getResultList());
           
         } else {
@@ -426,7 +430,6 @@ public class DefaultResultSetHandler implements ResultSetHandler {
 	if (resultMap.hasNestedResultMaps()) { // 针对存在嵌套ResultMap的情况
       ensureNoRowBounds(); // 检测是否允许在嵌套映射中使用RowBounds
       checkResultHandler();// 检测是否允许在嵌套映射中使用用户自定义的ResultHandler
-      // 
       handleRowValuesForNestedResultMap(rsw, resultMap, resultHandler, rowBounds, parentMapping);
     } else {
       // 针对不含嵌套映射的简单映射的处理
@@ -451,12 +454,12 @@ public class DefaultResultSetHandler implements ResultSetHandler {
   // 处理简单映射的方法
   private void handleRowValuesForSimpleResultMap(ResultSetWrapper rsw, ResultMap resultMap, ResultHandler<?> resultHandler, RowBounds rowBounds, ResultMapping parentMapping)
       throws SQLException {
-	  
+	  System.out.println("====handleRowValuesForSimpleResultMap=============");
 	// 默认上下文对象
     DefaultResultContext<Object> resultContext = new DefaultResultContext<Object>();
     
     // 步骤一:根据rowBounds中的位置定位到指定的一行记录
-    skipRows(rsw.getResultSet(), rowBounds); // 第一个结果对象所对应的行数
+    skipRows(rsw.getResultSet(), rowBounds); 
     
     // 步骤二:检测已经处理的行数是否已经达到上限(RowBounds.limit)以及ResultSet中是否还有可处理的记录
     
@@ -467,12 +470,16 @@ public class DefaultResultSetHandler implements ResultSetHandler {
       // 步骤三:根据该行记录以及ResultMap.discriminator，决定映射使用的ResultMap
       ResultMap discriminatedResultMap = resolveDiscriminatedResultMap(rsw.getResultSet(), resultMap, null);
       
+      System.out.println(discriminatedResultMap);
+      
       // 步骤四:根据最终确定的ResultMap对ResultSet中的该行记录进行映射，得到映射后的结果对象
       Object rowValue = getRowValue(rsw, discriminatedResultMap);
       
       // 步骤五:将映射创建的结果对象添加到ResultHandler.resultList中保存
       storeObject(resultHandler, resultContext, rowValue, parentMapping, rsw.getResultSet());
     }
+    
+    System.out.println("===========================================================");
   }
 
   private void storeObject(ResultHandler<?> resultHandler, DefaultResultContext<Object> resultContext, Object rowValue, ResultMapping parentMapping, ResultSet rs) throws SQLException {
@@ -506,12 +513,15 @@ public class DefaultResultSetHandler implements ResultSetHandler {
   // 它会依据RowBounds.offset字段的值定位到指定的记录
   private void skipRows(ResultSet rs, RowBounds rowBounds) throws SQLException {
     // 根据ResultSet的类型进行定位
+	  System.out.println("ResultSetType = " + rs.getType());
+
 	if (rs.getType() != ResultSet.TYPE_FORWARD_ONLY) {
       if (rowBounds.getOffset() != RowBounds.NO_ROW_OFFSET) {
         rs.absolute(rowBounds.getOffset()); // 直接定位到offset指定的记录
       }
     } else {
       // 通过多次调用ResultSet.next方法移动到指定的记录
+    	System.out.println("ResultSetOffset = " + rowBounds.getOffset());
       for (int i = 0; i < rowBounds.getOffset(); i++) {
         rs.next();
       }
@@ -528,6 +538,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
 	
     // 步骤一:创建该行记录映射之后得到的结果对象，该结果对象的类型由<ResultMap>节点的type类型决定
     Object rowValue = createResultObject(rsw, resultMap, lazyLoader, null);
+    System.out.println("rowValue = " + rowValue.getClass().getName());
     
     // 结果对象不为空，
     if (rowValue != null && !hasTypeHandlerForResultObject(rsw, resultMap.getType())) {
@@ -794,11 +805,16 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     
     // 创建该行记录对应的结果对象，该方法是该步骤的核心
     Object resultObject = createResultObject(rsw, resultMap, constructorArgTypes, constructorArgs, columnPrefix);
+
+    System.out.println("ResultType = " + resultMap.getType());
     
     if (resultObject != null && !hasTypeHandlerForResultObject(rsw, resultMap.getType())) {
+    	System.out.println("false|true" + hasTypeHandlerForResultObject(rsw, resultMap.getType()));
       // propertyResultMappings记录了映射关系不带有constructor标志的映射关系
       final List<ResultMapping> propertyMappings = resultMap.getPropertyResultMappings();
       for (ResultMapping propertyMapping : propertyMappings) {
+    	  
+    	  
         // issue gcode #109 && issue #149
     	// 嵌套查询  (当用时才进行查询 )        、、、、、、设置了延迟加载
         if (propertyMapping.getNestedQueryId() != null && propertyMapping.isLazy()) {

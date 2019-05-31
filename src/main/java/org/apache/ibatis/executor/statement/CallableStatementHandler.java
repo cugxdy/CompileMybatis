@@ -83,6 +83,7 @@ public class CallableStatementHandler extends BaseStatementHandler {
   protected Statement instantiateStatement(Connection connection) throws SQLException {
     String sql = boundSql.getSql();
     if (mappedStatement.getResultSetType() != null) {
+    	// 获取具有存储过程的Statement对象
       return connection.prepareCall(sql, mappedStatement.getResultSetType().getValue(), ResultSet.CONCUR_READ_ONLY);
     } else {
       return connection.prepareCall(sql);

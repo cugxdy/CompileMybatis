@@ -47,6 +47,7 @@ import org.xml.sax.SAXParseException;
  */
 public class XPathParser {
 
+  // org.w3c.dom.Document对象
   private final Document document; // Document对象
   
   private boolean validation;// 是否开启验证
@@ -54,21 +55,24 @@ public class XPathParser {
   private EntityResolver entityResolver;// 用于加载本地文件
   
   private Properties variables;// mybatis-config.xml中<Properties>标签定义的集合
-  
+  // javax.xml.xpath
   private XPath xpath; // XPath对象
 
   public XPathParser(String xml) {
     commonConstructor(false, null, null);
+    // 创建Document对象
     this.document = createDocument(new InputSource(new StringReader(xml)));
   }
 
   public XPathParser(Reader reader) {
     commonConstructor(false, null, null);
+    // 创建Document对象
     this.document = createDocument(new InputSource(reader));
   }
 
   public XPathParser(InputStream inputStream) {
     commonConstructor(false, null, null);
+    // 创建Document对象
     this.document = createDocument(new InputSource(inputStream));
   }
 
@@ -121,6 +125,7 @@ public class XPathParser {
     commonConstructor(validation, variables, entityResolver);
     this.document = createDocument(new InputSource(new StringReader(xml)));
   }
+  
   // EntityResolver:xml文档验证模式 (reader, true, props, new XMLMapperEntityResolver())
   public XPathParser(Reader reader, boolean validation, Properties variables, EntityResolver entityResolver) {
     // 配置属性
@@ -140,7 +145,6 @@ public class XPathParser {
 	}
 	
 	commonConstructor(validation, variables, entityResolver);
-
 	// 设置Document对象
     this.document = createDocument(new InputSource(inputStream));
   }

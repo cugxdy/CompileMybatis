@@ -58,6 +58,7 @@ public class JdbcTransaction implements Transaction {
     this.connection = connection;
   }
 
+  // 获取数据库连接
   public Connection getConnection() throws SQLException {
     if (connection == null) {
       openConnection();
@@ -65,6 +66,7 @@ public class JdbcTransaction implements Transaction {
     return connection; // 返回连接对象
   }
 
+  // 当不为自动提交时,即进行事务提交
   public void commit() throws SQLException {
     if (connection != null && !connection.getAutoCommit()) {
       if (log.isDebugEnabled()) {
@@ -74,6 +76,7 @@ public class JdbcTransaction implements Transaction {
     }
   }
 
+  // 当不为自动提交时,即进行事务回滚
   public void rollback() throws SQLException {
     if (connection != null && !connection.getAutoCommit()) {
       if (log.isDebugEnabled()) {
@@ -83,6 +86,7 @@ public class JdbcTransaction implements Transaction {
     }
   }
 
+  // 关闭数据库连接
   public void close() throws SQLException {
     if (connection != null) {
       resetAutoCommit(); 
@@ -93,6 +97,7 @@ public class JdbcTransaction implements Transaction {
     }
   }
 
+  // 将自动提交设置至相反的方向
   protected void setDesiredAutoCommit(boolean desiredAutoCommit) {
     try {
       if (connection.getAutoCommit() != desiredAutoCommit) {
@@ -109,7 +114,8 @@ public class JdbcTransaction implements Transaction {
           + "Requested setting: " + desiredAutoCommit + ".  Cause: " + e, e);
     }
   }
-
+  
+  // 将自动提交设置为true
   protected void resetAutoCommit() {
     try {
       if (!connection.getAutoCommit()) {
@@ -135,10 +141,13 @@ public class JdbcTransaction implements Transaction {
     if (log.isDebugEnabled()) {
       log.debug("Opening JDBC Connection");
     }
+    // 创建数据库连接
     connection = dataSource.getConnection(); // 初始化connection字段
     if (level != null) {
+    	// 设置数据库的隔离级别
       connection.setTransactionIsolation(level.getLevel());// 设置事务隔离级别
     }
+    // 设置数据库的自动提交
     setDesiredAutoCommit(autoCommmit);// 设置是否自动提交事务
   }
 

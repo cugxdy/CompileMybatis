@@ -64,6 +64,7 @@ public class DefaultSqlSession implements SqlSession {
     this.configuration = configuration;
     this.executor = executor;
     this.dirty = false;
+    // 判断是否执行自动提交
     this.autoCommit = autoCommit;
   }
 
@@ -71,6 +72,7 @@ public class DefaultSqlSession implements SqlSession {
     this(configuration, executor, false);
   }
 
+  // 查询并处理第一个结果集行
   public <T> T selectOne(String statement) {
     return this.<T>selectOne(statement, null);
   }
@@ -97,6 +99,7 @@ public class DefaultSqlSession implements SqlSession {
         	System.out.println(obj);
         }
     }
+    // 获取第一个就行了
     if (list.size() == 1) {
       return list.get(0);
     } else if (list.size() > 1) {
@@ -117,7 +120,8 @@ public class DefaultSqlSession implements SqlSession {
   public <K, V> Map<K, V> selectMap(String statement, Object parameter, String mapKey, RowBounds rowBounds) {
     
 	final List<? extends V> list = selectList(statement, parameter, rowBounds);
-    final DefaultMapResultHandler<K, V> mapResultHandler = new DefaultMapResultHandler<K, V>(mapKey,
+    
+	final DefaultMapResultHandler<K, V> mapResultHandler = new DefaultMapResultHandler<K, V>(mapKey,
         configuration.getObjectFactory(), configuration.getObjectWrapperFactory(), configuration.getReflectorFactory());
     final DefaultResultContext<V> context = new DefaultResultContext<V>();
     for (V o : list) {
@@ -226,6 +230,7 @@ public class DefaultSqlSession implements SqlSession {
     return update(statement, parameter);
   }
 
+  // 执行提交
   public void commit() {
     commit(false);
   }
@@ -318,11 +323,15 @@ public class DefaultSqlSession implements SqlSession {
     cursorList.add(cursor);
   }
 
+  // 当force = true返回true
+  // 当force = false时:autoCommit = false 和 dirty = true时,才返回True
   private boolean isCommitOrRollbackRequired(boolean force) {
     return (!autoCommit && dirty) || force;
   }
 
+  // 将list、set、array结构数据转换成map形式
   private Object wrapCollection(final Object object) {
+	  // Map不属于Collection接口
     if (object instanceof Collection) {
       StrictMap<Object> map = new StrictMap<Object>();
       map.put("collection", object); // 对map的处理
@@ -339,6 +348,7 @@ public class DefaultSqlSession implements SqlSession {
     return object;
   }
 
+  // StrictMap继承了HashMap对象修改了get方法,就是不含指定键的时候,就抛出异常！
   public static class StrictMap<V> extends HashMap<String, V> {
 
     private static final long serialVersionUID = -5741767162221585340L;

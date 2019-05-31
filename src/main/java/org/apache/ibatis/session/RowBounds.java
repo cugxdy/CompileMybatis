@@ -27,6 +27,7 @@ public class RowBounds {
   private final int offset;
   private final int limit;
 
+  // 默认RowBounds对象,即表示从0位置开始
   public RowBounds() {
     this.offset = NO_ROW_OFFSET;
     this.limit = NO_ROW_LIMIT;

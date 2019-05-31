@@ -46,6 +46,7 @@ public class TransactionalCacheManager {
     getTransactionalCache(cache).putObject(key, value);
   }
 
+  // 遍历transactionalCaches的值对象并执行提交操作
   public void commit() {
     for (TransactionalCache txCache : transactionalCaches.values()) {
       // 调用相应的TransactionalCache对象提交方法
@@ -53,6 +54,7 @@ public class TransactionalCacheManager {
     }
   }
 
+  // 遍历transactionalCaches的值对象并执行回滚操作
   public void rollback() {
     for (TransactionalCache txCache : transactionalCaches.values()) {
       // 调用相应的TransactionalCache对象回滚方法
@@ -60,6 +62,7 @@ public class TransactionalCacheManager {
     }
   }
 
+  // 获取TransactionalCache对象
   private TransactionalCache getTransactionalCache(Cache cache) {
     TransactionalCache txCache = transactionalCaches.get(cache);
     if (txCache == null) {  // txCache为空时

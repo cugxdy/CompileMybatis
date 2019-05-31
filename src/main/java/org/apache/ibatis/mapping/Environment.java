@@ -46,9 +46,12 @@ public final class Environment {
     this.dataSource = dataSource;
   }
 
+  
   public static class Builder {
       private String id;
+      // TransactionFactory属性值
       private TransactionFactory transactionFactory;
+      // DataSource属性值
       private DataSource dataSource;
 
     public Builder(String id) {

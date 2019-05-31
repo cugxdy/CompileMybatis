@@ -84,6 +84,11 @@ public class ResultSetWrapper {
       
       // 每列对应的javaType类型
       classNames.add(metaData.getColumnClassName(i));// 该列对应的Java类型
+      System.out.println("=============================================================");
+      System.out.println("columnName = " + metaData.getColumnName(i));
+      System.out.println("jdbcTypes = " + JdbcType.forCode(metaData.getColumnType(i)).toString());
+      System.out.println("classNames = " + metaData.getColumnClassName(i));;
+      System.out.println("=============================================================");
     }
   }
 

@@ -37,7 +37,8 @@ import org.apache.ibatis.session.RowBounds;
 public class PreparedStatementHandler extends BaseStatementHandler {
 
   public PreparedStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
-    super(executor, mappedStatement, parameter, rowBounds, resultHandler, boundSql);
+    // --> BaseStatementHandler
+	  super(executor, mappedStatement, parameter, rowBounds, resultHandler, boundSql);
   }
 
   @Override
@@ -47,11 +48,12 @@ public class PreparedStatementHandler extends BaseStatementHandler {
     int rows = ps.getUpdateCount();
     Object parameterObject = boundSql.getParameterObject();
     KeyGenerator keyGenerator = mappedStatement.getKeyGenerator();
+    // 自增主键的设计
     keyGenerator.processAfter(executor, mappedStatement, ps, parameterObject);
     return rows;
   }
 
-  @Override
+  @Override // 批量执行sql语句
   public void batch(Statement statement) throws SQLException {
     PreparedStatement ps = (PreparedStatement) statement;
     ps.addBatch();
@@ -61,6 +63,7 @@ public class PreparedStatementHandler extends BaseStatementHandler {
   public <E> List<E> query(Statement statement, ResultHandler resultHandler) throws SQLException {
     PreparedStatement ps = (PreparedStatement) statement;
     ps.execute();
+    System.out.println("=====================开始准备结果集映射===================================");
     return resultSetHandler.<E> handleResultSets(ps);
   }
 
@@ -68,12 +71,14 @@ public class PreparedStatementHandler extends BaseStatementHandler {
   public <E> Cursor<E> queryCursor(Statement statement) throws SQLException {
     PreparedStatement ps = (PreparedStatement) statement;
     ps.execute();
+    // 处理游标结果集
     return resultSetHandler.<E> handleCursorResultSets(ps);
   }
 
   @Override
   protected Statement instantiateStatement(Connection connection) throws SQLException {
-    String sql = boundSql.getSql();  // 获取待执行的SQL语句
+    
+	  String sql = boundSql.getSql();  // 获取待执行的SQL语句
     // 根据mappedStatement.getKeyGenerator()字段的值，创建PreparedStatement对象
     if (mappedStatement.getKeyGenerator() instanceof Jdbc3KeyGenerator) {
       String[] keyColumnNames = mappedStatement.getKeyColumns();

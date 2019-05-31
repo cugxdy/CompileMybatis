@@ -40,6 +40,7 @@ public class JdbcTransactionFactory implements TransactionFactory {
     return new JdbcTransaction(conn);
   }
 
+  // 创建JdbcTransaction对象
   public Transaction newTransaction(DataSource ds, TransactionIsolationLevel level, boolean autoCommit) {
     return new JdbcTransaction(ds, level, autoCommit);
   }

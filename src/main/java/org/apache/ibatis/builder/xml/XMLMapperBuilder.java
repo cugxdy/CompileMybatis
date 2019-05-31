@@ -121,6 +121,7 @@ public class XMLMapperBuilder extends BaseBuilder {
     try {
       // 获取<Mapper>节点的namespace属性
       String namespace = context.getStringAttribute("namespace");
+      
       // 当namespace为空时,抛出BuilderException异常
       if (namespace == null || namespace.equals("")) {
         throw new BuilderException("Mapper's namespace cannot be empty");

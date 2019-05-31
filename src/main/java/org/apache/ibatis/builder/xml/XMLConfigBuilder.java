@@ -531,11 +531,13 @@ public class XMLConfigBuilder extends BaseBuilder {
 	</mappers>  <mapper>节点配置示例*/
     if (parent != null) {
       for (XNode child : parent.getChildren()) { // 处理<mappers>子节点
+    	  
         if ("package".equals(child.getName())) {// <package>子节点
           String mapperPackage = child.getStringAttribute("name"); 
           // 扫描指定的包，并向MapperRegistry注册Mapper接口
           configuration.addMappers(mapperPackage);
         } else {
+        	
           // 获取<resource>/<url>/<class>属性，这三种只能同时存在一种
           String resource = child.getStringAttribute("resource");
           String url = child.getStringAttribute("url");

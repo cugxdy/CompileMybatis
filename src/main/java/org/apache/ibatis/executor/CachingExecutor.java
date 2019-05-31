@@ -36,6 +36,7 @@ import org.apache.ibatis.transaction.Transaction;
  * @author Clinton Begin
  * @author Eduardo Macarron
  */
+// 委托模式的实现
 public class CachingExecutor implements Executor {
 
   private final Executor delegate;
@@ -56,9 +57,9 @@ public class CachingExecutor implements Executor {
     try {
       //issues #499, #524 and #573
       if (forceRollback) { 
-        tcm.rollback();
-      } else {
-        tcm.commit();
+        tcm.rollback(); // 回滚
+      } else { 
+        tcm.commit(); // 提交
       }
     } finally {
       delegate.close(forceRollback);

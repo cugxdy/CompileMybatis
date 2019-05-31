@@ -32,8 +32,10 @@ import org.apache.ibatis.session.RowBounds;
 /**
  * @author Clinton Begin
  */
+// 委托模式
 public class RoutingStatementHandler implements StatementHandler {
 
+	// 委托具体的实现者对象
   private final StatementHandler delegate; // 底层封装真正的StatementHandler对象
 
   public RoutingStatementHandler(Executor executor, MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
@@ -59,7 +61,8 @@ public class RoutingStatementHandler implements StatementHandler {
   // RoutingStatementHandler中所有的方法，都是通过调用delegate对象的对应方法实现的
   @Override
   public Statement prepare(Connection connection, Integer transactionTimeout) throws SQLException {
-      System.out.println("delegateType = " + delegate.getClass().getName());
+      
+	  System.out.println("delegateType = " + delegate.getClass().getName());
 	  return delegate.prepare(connection, transactionTimeout);
   }
 

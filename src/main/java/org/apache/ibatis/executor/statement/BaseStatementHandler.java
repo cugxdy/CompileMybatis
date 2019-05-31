@@ -36,6 +36,7 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
 /**
  * @author Clinton Begin
  */
+// 模板模式
 public abstract class BaseStatementHandler implements StatementHandler {
 
   protected final Configuration configuration;
@@ -44,12 +45,14 @@ public abstract class BaseStatementHandler implements StatementHandler {
   
   // 记录使用的ResultSetHandler对象，它的主要功能是将结果集映射成结果对象
   protected final ResultSetHandler resultSetHandler;
+  
   // 记录使用的ParameterHandler对象，ParameterHandler的主要功能是为SQL语句绑定实参，也是就是使用传入的参数
   // 替换SQL语句中的"?"占位符
   protected final ParameterHandler parameterHandler;
 
   // 记录SQL语句的Executor对象
   protected final Executor executor;
+  
   // 记录SQL语句对应的MappedStatement和BoundSql对象
   protected final MappedStatement mappedStatement;
   
@@ -75,7 +78,9 @@ public abstract class BaseStatementHandler implements StatementHandler {
 
     this.boundSql = boundSql;
 
+    // 初始化ParameterHandler对象
     this.parameterHandler = configuration.newParameterHandler(mappedStatement, parameterObject, boundSql);
+    // 初始化ResultSetHandler对象
     this.resultSetHandler = configuration.newResultSetHandler(executor, mappedStatement, rowBounds, parameterHandler, resultHandler, boundSql);
   }
 
@@ -94,9 +99,11 @@ public abstract class BaseStatementHandler implements StatementHandler {
     ErrorContext.instance().sql(boundSql.getSql());
     Statement statement = null;
     try {
+    	// 创建statement对象
       statement = instantiateStatement(connection);
-      
+      // 设置等待sql执行时间
       setStatementTimeout(statement, transactionTimeout);
+      // 设置FetchSize属性
       setFetchSize(statement);
       return statement;
     } catch (SQLException e) {
@@ -143,6 +150,7 @@ public abstract class BaseStatementHandler implements StatementHandler {
     }
   }
 
+  // 关闭Statement对象
   protected void closeStatement(Statement statement) {
     try {
       if (statement != null) {

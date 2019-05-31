@@ -13,7 +13,6 @@
             </dataSource>
         </environment>
     </environments>
-    
     <mappers>
         <mapper resource="org/cugxdy/mapping/userMapper.xml"/>
     </mappers>

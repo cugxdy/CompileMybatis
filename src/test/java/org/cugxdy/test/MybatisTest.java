@@ -29,7 +29,6 @@ public class MybatisTest {
 		
 	   	InputStream inputStream = Resources.getResourceAsStream(resource);
 	   	
-	   	
 	   	// InputStream inputStream1 = MybatisTest.class.getClassLoader().getResourceAsStream(resource);
 
 	   	SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);

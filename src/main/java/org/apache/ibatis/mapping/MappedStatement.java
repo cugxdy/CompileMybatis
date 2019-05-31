@@ -36,9 +36,9 @@ public final class MappedStatement {
   private String resource;  // 节点中的id属性(包括命名前缀)
   private Configuration configuration;
   private String id;
-  private Integer fetchSize;
+  private Integer fetchSize; // 默认返回结果集数
   private Integer timeout;  // 获取驱动程序等待 Statement 对象执行的秒数。
-  private StatementType statementType;
+  private StatementType statementType; // 具体statementHandler选择类型
   private ResultSetType resultSetType;
   private SqlSource sqlSource;   // sqlSource对象，对应一条执行SQL语句
   private Cache cache; 

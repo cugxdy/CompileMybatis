@@ -97,6 +97,7 @@
 /*     */ 
 /*     */ public class Configuration
 /*     */ {
+			// 配置Tranction对象
 /*     */   protected Environment environment;
 /*     */   protected boolean safeRowBoundsEnabled;
 /* 102 */   protected boolean safeResultHandlerEnabled = true;
@@ -104,6 +105,7 @@
 /*     */   protected boolean aggressiveLazyLoading;
 /* 105 */   protected boolean multipleResultSetsEnabled = true;
 /*     */   protected boolean useGeneratedKeys;
+			// 使用允许使用列别名
 /* 107 */   protected boolean useColumnLabel = true;
 /* 108 */   protected boolean cacheEnabled = true;
 /*     */   protected boolean callSettersOnNulls;
@@ -561,26 +563,32 @@
 /* 559 */     statementHandler = (StatementHandler)interceptorChain.pluginAll(statementHandler);
 /* 560 */     return statementHandler;
 /*     */   }
-/*     */   
+
+/*     */   // 创建执行器对象
 /*     */   public Executor newExecutor(Transaction transaction) {
 /* 564 */     return newExecutor(transaction, defaultExecutorType);
 /*     */   }
 /*     */   
 /*     */   public Executor newExecutor(Transaction transaction, ExecutorType executorType) {
-/* 568 */     executorType = executorType == null ? defaultExecutorType : executorType;
+/* 568 */     // 获取执行器类型
+				executorType = executorType == null ? defaultExecutorType : executorType;
 /* 569 */     executorType = executorType == null ? ExecutorType.SIMPLE : executorType;
 /*     */     Executor executor;
+
 /* 571 */     if (ExecutorType.BATCH == executorType) {
 /* 572 */       executor = new BatchExecutor(this, transaction); 
-				} else { 
-/* 573 */       	if (ExecutorType.REUSE == executorType) {
+			  } else { 
+/* 573 */           if (ExecutorType.REUSE == executorType) {
 /* 574 */         		executor = new ReuseExecutor(this, transaction);
 /*     */       	} else
 /* 576 */         	executor = new SimpleExecutor(this, transaction);
 /*     */     }
+				// 是否开启缓存功能。
 /* 578 */     if (cacheEnabled) {
+				// 创建CachingExecutor对象
 /* 579 */       executor = new CachingExecutor(executor);
 /*     */     }
+
 /* 581 */     executor = (Executor)interceptorChain.pluginAll(executor);
 /* 582 */     return executor;
 /*     */   }
