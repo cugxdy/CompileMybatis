@@ -24,7 +24,7 @@ public class MybatisTest {
 
 	@Test
 	public void  test() throws IOException {
-		
+		  
 		String resource = "org/zcugxdy/file/MybatisConfig.xml";
 		
 	   	InputStream inputStream = Resources.getResourceAsStream(resource);
