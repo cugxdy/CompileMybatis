@@ -77,10 +77,10 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
 
 public class Configuration
 {
-			// 配置Tranction对象
-   protected Environment environment;
-   protected boolean safeRowBoundsEnabled;
-/* 102 */   protected boolean safeResultHandlerEnabled = true;
+	// 配置Tranction对象
+	protected Environment environment;
+	protected boolean safeRowBoundsEnabled;
+	protected boolean safeResultHandlerEnabled = true;
    protected boolean mapUnderscoreToCamelCase;
    protected boolean aggressiveLazyLoading;
 /* 105 */   protected boolean multipleResultSetsEnabled = true;
