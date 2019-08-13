@@ -59,6 +59,7 @@ public class XNode {
     return new XNode(xpathParser, node, variables);
   }
 
+  // 获取当前节点的父节点
   public XNode getParent() {
 	// 获取父元素节点
     Node parent = node.getParentNode();
@@ -69,6 +70,7 @@ public class XNode {
     }
   }
 
+  // 获取当前节点路径
   public String getPath() {
     StringBuilder builder = new StringBuilder();
     Node current = node;
@@ -82,6 +84,7 @@ public class XNode {
     return builder.toString();
   }
 
+  // 当存在extend属性时,[parent_name]_[children_name]
   public String getValueBasedIdentifier() {
     StringBuilder builder = new StringBuilder();
     XNode current = this; // resultMapNode
@@ -93,6 +96,7 @@ public class XNode {
       String value = current.getStringAttribute("id",
           current.getStringAttribute("value",
               current.getStringAttribute("property", null)));
+      
       if (value != null) {
         value = value.replace('.', '_');
         builder.insert(0, "]");
@@ -127,18 +131,22 @@ public class XNode {
     return xpathParser.evalNode(node, expression);
   }
 
+  // 获取元素
   public Node getNode() {
     return node;
   }
 
+  // 获取节点名称
   public String getName() {
     return name;
   }
-
+  
+  // 获取String形式的Body数据,默认为null
   public String getStringBody() {
     return getStringBody(null);
   }
-
+  
+  // 获取String形式的Body数据,默认为def
   public String getStringBody(String def) {
     if (body == null) {
       return def;
@@ -146,11 +154,13 @@ public class XNode {
       return body;
     }
   }
-
+  
+  // 获取Boolean形式的Body数据,默认为null
   public Boolean getBooleanBody() {
     return getBooleanBody(null);
   }
-
+  
+  // 获取Boolean形式的Body数据,默认为def
   public Boolean getBooleanBody(Boolean def) {
     if (body == null) {
       return def;
@@ -158,11 +168,13 @@ public class XNode {
       return Boolean.valueOf(body);
     }
   }
-
+  
+  // 获取Integer形式的Body数据,默认为null
   public Integer getIntBody() {
     return getIntBody(null);
   }
 
+  // 获取Integer形式的Body数据,默认为def
   public Integer getIntBody(Integer def) {
     if (body == null) {
       return def;
@@ -170,11 +182,13 @@ public class XNode {
       return Integer.parseInt(body);
     }
   }
-
+  
+  // 获取Long形式的Body数据,默认为null
   public Long getLongBody() {
     return getLongBody(null);
   }
 
+  // 获取Long形式的Body数据,默认为def
   public Long getLongBody(Long def) {
     if (body == null) {
       return def;
@@ -183,10 +197,12 @@ public class XNode {
     }
   }
 
+  // 获取Double形式的Body数据,默认为null
   public Double getDoubleBody() {
     return getDoubleBody(null);
   }
 
+  // 获取Double形式的Body数据,默认为def
   public Double getDoubleBody(Double def) {
     if (body == null) {
       return def;
@@ -195,10 +211,12 @@ public class XNode {
     }
   }
 
+  // 获取Float形式的Body数据,默认为null
   public Float getFloatBody() {
     return getFloatBody(null);
   }
 
+  // 获取Float形式的Body数据,默认为def
   public Float getFloatBody(Float def) {
     if (body == null) {
       return def;
@@ -219,11 +237,13 @@ public class XNode {
       return Enum.valueOf(enumType, value);
     }
   }
-
+  
+  // 以String形式返回name属性,默认为null
   public String getStringAttribute(String name) {
     return getStringAttribute(name, null);
   }
 
+  // 以String形式返回name属性,默认为def
   public String getStringAttribute(String name, String def) {
     String value = attributes.getProperty(name);
     if (value == null) { // 当节点属性不存在时，使用默认def = null
@@ -233,10 +253,12 @@ public class XNode {
     }
   }
 
+  // 以Boolean形式返回name属性,默认为null
   public Boolean getBooleanAttribute(String name) {
     return getBooleanAttribute(name, null);
   }
 
+  // 以Boolean形式返回name属性,默认为def
   public Boolean getBooleanAttribute(String name, Boolean def) {
     String value = attributes.getProperty(name);
     if (value == null) {
@@ -246,10 +268,12 @@ public class XNode {
     }
   }
 
+  // 以Integer形式返回name属性,默认为null
   public Integer getIntAttribute(String name) {
     return getIntAttribute(name, null);
   }
 
+  // 以Integer形式返回name属性,默认为def
   public Integer getIntAttribute(String name, Integer def) {
     String value = attributes.getProperty(name);
     if (value == null) {
@@ -259,10 +283,12 @@ public class XNode {
     }
   }
 
+  // 以Long形式返回name属性,默认为null
   public Long getLongAttribute(String name) {
     return getLongAttribute(name, null);
   }
 
+  // 以Long形式返回name属性
   public Long getLongAttribute(String name, Long def) {
     String value = attributes.getProperty(name);
     if (value == null) {
@@ -271,11 +297,13 @@ public class XNode {
       return Long.parseLong(value);
     }
   }
-
+  
+  // 以Double形式返回name属性
   public Double getDoubleAttribute(String name) {
     return getDoubleAttribute(name, null);
   }
 
+  // 以Double形式返回name属性
   public Double getDoubleAttribute(String name, Double def) {
     String value = attributes.getProperty(name);
     if (value == null) {
@@ -285,10 +313,12 @@ public class XNode {
     }
   }
 
+  // 以Float形式返回name属性
   public Float getFloatAttribute(String name) {
     return getFloatAttribute(name, null);
   }
 
+  // 以Float形式返回name属性
   public Float getFloatAttribute(String name, Float def) {
     String value = attributes.getProperty(name);
     if (value == null) {
@@ -316,7 +346,7 @@ public class XNode {
 
   public Properties getChildrenAsProperties() {
     Properties properties = new Properties();
-    // 遍历该节点的所有子节点
+    // 遍历该节点的所有子节点(元素节点)
     for (XNode child : getChildren()) { 
       String name = child.getStringAttribute("name"); // 获取子节点的name值
       String value = child.getStringAttribute("value"); // 获取子节点的value值
@@ -327,7 +357,7 @@ public class XNode {
     return properties;
   }
 
-  @Override
+  @Override// 返回String对象
   public String toString() {
     StringBuilder builder = new StringBuilder();
     builder.append("<");
@@ -361,6 +391,7 @@ public class XNode {
     return builder.toString();
   }
 
+  // 解析属性
   private Properties parseAttributes(Node n) {
 	  
     Properties attributes = new Properties();  // 返回Properties对象，包含键值对
@@ -379,6 +410,7 @@ public class XNode {
     return attributes;
   }
 
+  // 获取节点内容
   private String parseBody(Node node) {
     String data = getBodyData(node);
     System.out.println("body = " + data);
