@@ -50,6 +50,7 @@ public class XPathParser {
   // org.w3c.dom.Document对象
   private final Document document; // Document对象
   
+  // 默认为true
   private boolean validation;// 是否开启验证
   
   private EntityResolver entityResolver;// 用于加载本地文件
@@ -134,6 +135,7 @@ public class XPathParser {
     this.document = createDocument(new InputSource(reader));
   }
 
+  // 创建XPathParser对象
   public XPathParser(InputStream inputStream, boolean validation, Properties variables, EntityResolver entityResolver) {
 	// 初始化相应的字段validation、entityResolver、variables、xpath
 	System.out.println("XPathParser:validation = " + validation);
@@ -222,6 +224,7 @@ public class XPathParser {
 
   public List<XNode> evalNodes(Object root, String expression) {
     List<XNode> xnodes = new ArrayList<XNode>();
+    // 解析多个相同元素节点
     NodeList nodes = (NodeList) evaluate(expression, root, XPathConstants.NODESET);
     for (int i = 0; i < nodes.getLength(); i++) {
       xnodes.add(new XNode(this, nodes.item(i), variables));
@@ -299,7 +302,6 @@ public class XPathParser {
   
   // 初始化XPathParser属性值
   private void commonConstructor(boolean validation, Properties variables, EntityResolver entityResolver) {
-    
 	this.validation = validation;
     this.entityResolver = entityResolver;
     this.variables = variables;
