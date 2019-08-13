@@ -109,6 +109,7 @@ public class ClassLoaderWrapper {
    * @param classLoader - the classloaders to examine
    * @return the resource or null
    */
+  // 使用ClassLoader来加载文件,获取InputStream资源
   InputStream getResourceAsStream(String resource, ClassLoader[] classLoader) {
     System.out.println(resource);
     for (ClassLoader cl : classLoader) { 
@@ -178,6 +179,7 @@ public class ClassLoaderWrapper {
    * @return the class
    * @throws ClassNotFoundException - Remember the wisdom of Judge Smails: Well, the world needs ditch diggers, too.
    */
+  // 使用Class.forName来加载Class类资源
   Class<?> classForName(String name, ClassLoader[] classLoader) throws ClassNotFoundException {
 
     for (ClassLoader cl : classLoader) {  // 遍历classLoader数组
