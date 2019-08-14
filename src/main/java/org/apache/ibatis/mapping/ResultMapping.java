@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.ibatis.annotations.Many;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
@@ -72,18 +73,21 @@ public class ResultMapping {
   public static class Builder {
     private ResultMapping resultMapping = new ResultMapping();
 
+    // 创建Builder对象
     public Builder(Configuration configuration, String property, String column, TypeHandler<?> typeHandler) {
       this(configuration, property);
       resultMapping.column = column;
       resultMapping.typeHandler = typeHandler;
     }
 
+    // 创建Builder对象
     public Builder(Configuration configuration, String property, String column, Class<?> javaType) {
       this(configuration, property);
       resultMapping.column = column;
       resultMapping.javaType = javaType;
     }
 
+    // 创建Builder对象
     public Builder(Configuration configuration, String property) {
       resultMapping.configuration = configuration;
       resultMapping.property = property;
@@ -92,66 +96,80 @@ public class ResultMapping {
       resultMapping.lazy = configuration.isLazyLoadingEnabled(); // 先使用Configuration.lazyLoadingEnabled
     }
 
+    // 设置ResultMapping对象的java数据类型
     public Builder javaType(Class<?> javaType) {
       resultMapping.javaType = javaType;
       return this;
     }
 
+    // 设置ResultMapping对象的jdbc数据类型
     public Builder jdbcType(JdbcType jdbcType) {
       resultMapping.jdbcType = jdbcType;
       return this;
     }
 
+    // 设置ResultMapping对象的嵌套映射ID
     public Builder nestedResultMapId(String nestedResultMapId) {
       resultMapping.nestedResultMapId = nestedResultMapId;
       return this;
     }
-
+    
+    // 设置ResultMapping对象的嵌套查询ID
+    // column="phone",property="roles",javaType=List.class,many=@Many(select = "org.cugxdy.mapper.UserMapper.getRoleNameByPhone")
     public Builder nestedQueryId(String nestedQueryId) {
       resultMapping.nestedQueryId = nestedQueryId;
       return this;
     }
 
+    // 设置ResultMapping对象的多结果集
     public Builder resultSet(String resultSet) {
       resultMapping.resultSet = resultSet;
       return this;
     }
 
+    // 设置ResultMapping对象的外键
     public Builder foreignColumn(String foreignColumn) {
       resultMapping.foreignColumn = foreignColumn;
       return this;
     }
 
+    // 设置ResultMapping对象的NotNull属性
     public Builder notNullColumns(Set<String> notNullColumns) {
       resultMapping.notNullColumns = notNullColumns;
       return this;
     }
 
+    // 设置ResultMapping对象的columnPrefix属性
     public Builder columnPrefix(String columnPrefix) {
       resultMapping.columnPrefix = columnPrefix;
       return this;
     }
 
+    // 设置ResultMapping对象的flags属性(Constructor元素节点)
     public Builder flags(List<ResultFlag> flags) {
       resultMapping.flags = flags;
       return this;
     }
 
+    // 设置ResultMapping对象的typeHandler属性(用于类型转换时)
     public Builder typeHandler(TypeHandler<?> typeHandler) {
       resultMapping.typeHandler = typeHandler;
       return this;
     }
 
+    // 设置ResultMapping对象的composites属性
     public Builder composites(List<ResultMapping> composites) {
       resultMapping.composites = composites;
       return this;
     }
 
+    // 设置ResultMapping对象的lazy属性(懒加载)
     public Builder lazy(boolean lazy) {
       resultMapping.lazy = lazy;
       return this;
     }
     
+    // 校验合法性
     public ResultMapping build() {
       // lock down collections
       // Collections.unmodifiableList()将参数中的List返回一个不可修改的List.
@@ -162,6 +180,7 @@ public class ResultMapping {
       return resultMapping;
     }
 
+    // 检验参数
     private void validate() {
       // Issue #697: cannot define both nestedQueryId and nestedResultMapId
       // 不能同时定义nestedQueryId与nestedResultMapId
@@ -173,10 +192,14 @@ public class ResultMapping {
       if (resultMapping.nestedQueryId == null && resultMapping.nestedResultMapId == null && resultMapping.typeHandler == null) {
         throw new IllegalStateException("No typehandler found for property " + resultMapping.property);
       }
+      
       // Issue #4 and GH #39: column is optional only in nested resultmaps but not in the rest
       if (resultMapping.nestedResultMapId == null && resultMapping.column == null && resultMapping.composites.isEmpty()) {
         throw new IllegalStateException("Mapping is missing column attribute for property " + resultMapping.property);
       }
+      
+      // 检验ResultSet属性
+      // 外键列.length = 列.length
       if (resultMapping.getResultSet() != null) {
         int numColumns = 0;
         if (resultMapping.column != null) {
@@ -192,6 +215,7 @@ public class ResultMapping {
       }
     }
     
+    // 当存在java类型时,typeHandler不允许为空
     private void resolveTypeHandler() {
       if (resultMapping.typeHandler == null && resultMapping.javaType != null) {
         Configuration configuration = resultMapping.configuration;
