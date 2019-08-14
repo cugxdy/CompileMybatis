@@ -25,7 +25,7 @@ import org.apache.ibatis.cache.CacheException;
 /**
  * @author Clinton Begin
  */
-// 具体缓存器实现类，package org.apache.ibatis.cache.decorators包下的Cache实现类
+// package org.apache.ibatis.cache.decorators包下的Cache实现类
 // 则是在具体的缓存PerpetualCache实现类添加其它具体的功能
 public class PerpetualCache implements Cache {
 
