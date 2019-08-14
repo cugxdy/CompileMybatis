@@ -110,7 +110,7 @@ public class XMLMapperBuilder extends BaseBuilder {
     try {
       // 获取<Mapper>节点的namespace属性
       String namespace = context.getStringAttribute("namespace");
-      
+       
       // 当namespace为空时,抛出BuilderException异常
       if (namespace == null || namespace.equals("")) {
         throw new BuilderException("Mapper's namespace cannot be empty");
@@ -208,6 +208,7 @@ public class XMLMapperBuilder extends BaseBuilder {
     }
   }
 
+  // 解析<cache-ref>元素节点
   private void cacheRefElement(XNode context) {
     if (context != null) {	
 /*    <cache-ref namespace="com.someone.application.data.SomeMapper"/>*/
@@ -228,6 +229,7 @@ public class XMLMapperBuilder extends BaseBuilder {
     }
   }
 
+  // 解析<cache>元素节点
   private void cacheElement(XNode context) throws Exception { 
 /*	  <cache
 	  eviction="FIFO"
@@ -295,6 +297,7 @@ public class XMLMapperBuilder extends BaseBuilder {
     }
   }
 
+  // 解析<ResultMap>元素节点
   private void resultMapElements(List<XNode> list) throws Exception {
     for (XNode resultMapNode : list) { // 遍历resultMap节点
       try {
@@ -473,6 +476,7 @@ public class XMLMapperBuilder extends BaseBuilder {
     }
   }
   
+  // 判断当前Sql元素节点是否符合databaseId属性
   private boolean databaseIdMatchesCurrent(String id, String databaseId, String requiredDatabaseId) {
     if (requiredDatabaseId != null) {
       if (!requiredDatabaseId.equals(databaseId)) {
@@ -493,6 +497,7 @@ public class XMLMapperBuilder extends BaseBuilder {
     return true;
   }
 
+  // 创建ResultMapping对象
   private ResultMapping buildResultMappingFromContext(XNode context, Class<?> resultType, List<ResultFlag> flags) throws Exception {
     String property;
     if (flags.contains(ResultFlag.CONSTRUCTOR)) {
@@ -503,20 +508,22 @@ public class XMLMapperBuilder extends BaseBuilder {
       property = context.getStringAttribute("property"); // 需要映射到JavaBean 的属性名称。
     }
     
-    // 获取该节点的column的属性值   
+    // 获取该节点的column的属性值 (数据库 列名)
     String column = context.getStringAttribute("column"); // 数据表的列名或者标签别名。 
     
-    // 获取该节点的javaType的属性值
+    // 获取该节点的javaType的属性值(java数据类型)
     // 一个完整的类名,或者是一个类型别名.如果你匹配的是一个JavaBean,那MyBatis 通常会自行检测到.
     // 然后,如果你是要映射到一个HashMap,那你需要指定javaType要达到的目的.
     String javaType = context.getStringAttribute("javaType");
  
     
+    // (数据库 数据类型)
     // 获取该节点的jdbcType的属性值 数据表支持的类型列表。
     // 这个属性只在insert,update 或delete 的时候针对允许空的列有用。
     // JDBC需要这项，但MyBatis不需要。如果你是直接针对JDBC编码，且有允许空的列，而你要指定这项。
     String jdbcType = context.getStringAttribute("jdbcType");
     
+    // 嵌套查询
     // 获取该节点的select的属性值    // 嵌套查询,比如创建结果对象，构造函数实参需要另一个结果映射的对象
     String nestedSelect = context.getStringAttribute("select");
     
@@ -557,12 +564,13 @@ public class XMLMapperBuilder extends BaseBuilder {
     return builderAssistant.buildResultMapping(resultType, property, column, javaTypeClass, jdbcTypeEnum, nestedSelect, nestedResultMap, notNullColumn, columnPrefix, typeHandlerClass, flags, resultSet, foreignColumn, lazy);
   }
   
-  // 解析嵌套映射
+  // 解析嵌套映射(association、collection、case)
   private String processNestedResultMappings(XNode context, List<ResultMapping> resultMappings) throws Exception {
       // 处理<association><collection><case>三种节点
 	  if ("association".equals(context.getName())
         || "collection".equals(context.getName())
         || "case".equals(context.getName())) {
+		  
 	  // 指定select属性之后，不会生成嵌套的ResultMap对象
       if (context.getStringAttribute("select") == null) {
     	// 递归调用resultMapElement()方法,解析association、collection、case三种节点
