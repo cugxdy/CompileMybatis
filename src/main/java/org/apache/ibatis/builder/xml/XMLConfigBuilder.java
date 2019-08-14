@@ -210,6 +210,7 @@ public class XMLConfigBuilder extends BaseBuilder {
     }
   }
 
+  // 解析typeAliases元素节点
   private void typeAliasesElement(XNode parent) {
     if (parent != null) {
       for (XNode child : parent.getChildren()) { // 处理全部子节点
@@ -340,6 +341,7 @@ public class XMLConfigBuilder extends BaseBuilder {
     	// 将新形成的key-value存储在configuration对象中
         defaults.putAll(vars); 
       }    
+      
       // 更新XPathParser和Configuation的variables字段
       parser.setVariables(defaults);
       configuration.setVariables(defaults);
@@ -460,7 +462,7 @@ public class XMLConfigBuilder extends BaseBuilder {
     </transactionManager>事务管理配置示例*/
 	if (context != null) {
       String type = context.getStringAttribute("type");
-      // 获取设置的name与value属性值
+      // 获取设置的name与value属性值  
       Properties props = context.getChildrenAsProperties();
       // 创建TransactionFactory对象
       TransactionFactory factory = (TransactionFactory) resolveClass(type).newInstance();
@@ -488,6 +490,7 @@ public class XMLConfigBuilder extends BaseBuilder {
     throw new BuilderException("Environment declaration requires a DataSourceFactory.");
   }
 
+  // 注册javaType与jdbcType类型转换器
   private void typeHandlerElement(XNode parent) throws Exception {
 /*	  <typeHandlers>
 	         <typeHandler handler="cn.typeHandler.MyDemoTypeHandler" javaType="String" jdbcType="INTEGER"/>
