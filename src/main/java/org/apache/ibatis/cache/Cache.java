@@ -38,7 +38,7 @@ import java.util.concurrent.locks.ReadWriteLock;
  *
  * @author Clinton Begin
  */
-
+// 装饰器模式的顶级接口设计实现
 public interface Cache {
 
   /**
