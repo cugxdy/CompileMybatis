@@ -74,6 +74,7 @@ public class XMLMapperBuilder extends BaseBuilder {
   // XPathParser  .xml文件解析器
   private XMLMapperBuilder(XPathParser parser, Configuration configuration, String resource, Map<String, XNode> sqlFragments) {
     super(configuration);
+    // xml解析辅助类
     this.builderAssistant = new MapperBuilderAssistant(configuration, resource);
     this.parser = parser;
     this.sqlFragments = sqlFragments;
