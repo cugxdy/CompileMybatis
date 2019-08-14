@@ -24,6 +24,7 @@ import org.apache.ibatis.mapping.ResultMapping;
 /**
  * @author Eduardo Macarron
  */
+// 
 public class ResultMapResolver {
   private final MapperBuilderAssistant assistant;
   private final String id;
