@@ -26,11 +26,11 @@ public class CacheRefResolver {
   private final String cacheRefNamespace; // 被引用的namespace命名空间
 
   public CacheRefResolver(MapperBuilderAssistant assistant, String cacheRefNamespace) {
-	
     this.assistant = assistant;
     this.cacheRefNamespace = cacheRefNamespace;
   }
 
+  // 解析缓存对象,将被引用缓存对象存入当前MapperBuilderAssistant对象中
   public Cache resolveCacheRef() {
     return assistant.useCacheRef(cacheRefNamespace);
   }
