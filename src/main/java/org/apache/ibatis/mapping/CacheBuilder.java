@@ -40,7 +40,7 @@ import org.apache.ibatis.reflection.SystemMetaObject;
 public class CacheBuilder {
   private final String id; // Cache对象的唯一ID，一般情况下对应映射文件的配置namespace
   
-  // Cache接口的实现类，默认是前面介绍的PerpetualCache
+  // Cache接口的实现类，默认是PerpetualCache
   private Class<? extends Cache> implementation;
   
   private final List<Class<? extends Cache>> decorators; // 装饰器集合，默认只包含LruCache.class
@@ -50,16 +50,19 @@ public class CacheBuilder {
   private Properties properties;// 其他配置信息
   private boolean blocking;// 是否阻塞
 
+  // 创建CacheBuilder对象
   public CacheBuilder(String id) {
     this.id = id;
     this.decorators = new ArrayList<Class<? extends Cache>>();
   }
 
+  // 设置缓存实现类
   public CacheBuilder implementation(Class<? extends Cache> implementation) {
     this.implementation = implementation;
     return this;
   }
 
+  // 添加缓存中的装饰器
   public CacheBuilder addDecorator(Class<? extends Cache> decorator) {
     if (decorator != null) {
       this.decorators.add(decorator);
@@ -67,11 +70,13 @@ public class CacheBuilder {
     return this;
   }
 
+  // 设置缓存大小
   public CacheBuilder size(Integer size) {
     this.size = size;
     return this;
   }
 
+  // 设置缓存清理时间间隔
   public CacheBuilder clearInterval(Long clearInterval) {
     this.clearInterval = clearInterval;
     return this;
@@ -87,6 +92,7 @@ public class CacheBuilder {
     return this;
   }
   
+  // 设置属性key-value值
   public CacheBuilder properties(Properties properties) {
     this.properties = properties;
     return this;
@@ -127,6 +133,7 @@ public class CacheBuilder {
     return cache;
   }
 
+  // 设置默认的缓存实现类、装饰器类
   private void setDefaultImplementations() {
     if (implementation == null) {
       implementation = PerpetualCache.class;
@@ -163,6 +170,7 @@ public class CacheBuilder {
     }
   }
 
+  // 设置缓存相应属性值
   private void setCacheProperties(Cache cache) {
     if (properties != null) {
       // cache对应创建的MetaObject对象
@@ -218,6 +226,7 @@ public class CacheBuilder {
     }
   }
 
+  // 创建Cache对象,id = namespace
   private Cache newBaseCacheInstance(Class<? extends Cache> cacheClass, String id) {
 	// 获取cacheClass的构造器函数
     Constructor<? extends Cache> cacheConstructor = getBaseCacheConstructor(cacheClass);
@@ -228,6 +237,7 @@ public class CacheBuilder {
     }
   }
 
+  // 获取(String)的构造器对象
   private Constructor<? extends Cache> getBaseCacheConstructor(Class<? extends Cache> cacheClass) {
     try {
       // 获取cacheClass的构造器函数
@@ -238,6 +248,7 @@ public class CacheBuilder {
     }
   }
 
+  // 创建装饰器修饰的Cache对象
   private Cache newCacheDecoratorInstance(Class<? extends Cache> cacheClass, Cache base) {
     Constructor<? extends Cache> cacheConstructor = getCacheDecoratorConstructor(cacheClass);
     try {
@@ -248,6 +259,7 @@ public class CacheBuilder {
     }
   }
 
+  // 获取(cache)的构造器函数
   private Constructor<? extends Cache> getCacheDecoratorConstructor(Class<? extends Cache> cacheClass) {
     try {
     	// 获取参数类型为(Cache)的构造函数
