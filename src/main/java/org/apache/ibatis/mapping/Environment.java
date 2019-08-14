@@ -22,6 +22,7 @@ import org.apache.ibatis.transaction.TransactionFactory;
 /**
  * @author Clinton Begin
  */
+// Environment对象
 public final class Environment {
   private final String id;   // Environment配置ID
   
