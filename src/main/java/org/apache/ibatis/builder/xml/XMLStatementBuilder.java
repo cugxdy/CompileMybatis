@@ -18,6 +18,7 @@ package org.apache.ibatis.builder.xml;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.ibatis.annotations.SelectKey;
 import org.apache.ibatis.builder.BaseBuilder;
 import org.apache.ibatis.builder.MapperBuilderAssistant;
 import org.apache.ibatis.executor.keygen.Jdbc3KeyGenerator;
@@ -49,7 +50,7 @@ public class XMLStatementBuilder extends BaseBuilder {
   public XMLStatementBuilder(Configuration configuration, MapperBuilderAssistant builderAssistant, XNode context, String databaseId) {
     super(configuration);
     this.builderAssistant = builderAssistant; // 辅助操作类
-    this.context = context; // 具体的SQL节点，包括节点的属性与sql语句
+    this.context = context; // 具体的SQL节点,包括节点的属性与sql语句
     this.requiredDatabaseId = databaseId; // 数据库厂商ID
   }
 
@@ -68,22 +69,22 @@ public class XMLStatementBuilder extends BaseBuilder {
     
     // 获取SQL节点的属性值(fetchSize,timeout,parameterMap,parameterType)
     // (resultMap,resultType,lang,resultSetType)
-    
-    // 影响驱动程序每次批量返回的结果行数和这个设置值相等。默认值为 unset（依赖驱动）。
+    // 影响驱动程序每次批量返回的结果行数和这个设置值相等。默认值为 unset(依赖驱动)。
     Integer fetchSize = context.getIntAttribute("fetchSize");
     
-    // 设置驱动程序等待数据库返回请求结果的秒数。默认值为 unset（依赖驱动）。
+    // 设置驱动程序等待数据库返回请求结果的秒数。默认值为 unset(依赖驱动)。
     Integer timeout = context.getIntAttribute("timeout");
     
     String parameterMap = context.getStringAttribute("parameterMap");
     
     // 将会传入这条语句的参数类的完全限定名或别名。
-    // 这个属性是可选的，因为 MyBatis可以通过 TypeHandler 推断出具体传入语句的参数，默认值为 unset。
+    // 这个属性是可选的，因为 MyBatis可以通过 TypeHandler推断出具体传入语句的参数，默认值为 unset。
     String parameterType = context.getStringAttribute("parameterType");
     
+    // 获取参数Class类型
     Class<?> parameterTypeClass = resolveClass(parameterType); // 获取参数类型的Class字面量
     
-    // 外部 resultMap 的命名引用。结果集的映射是 MyBatis最强大的特性，
+    // 映射resultMap的命名引用。结果集的映射是 MyBatis最强大的特性，
     String resultMap = context.getStringAttribute("resultMap");
     
     // 从这条语句中返回的期望类型的类的完全限定名或别名。
@@ -94,7 +95,8 @@ public class XMLStatementBuilder extends BaseBuilder {
     String lang = context.getStringAttribute("lang");
     LanguageDriver langDriver = getLanguageDriver(lang);
 
-    Class<?> resultTypeClass = resolveClass(resultType); // 获取参数类型的Class字面量
+    // 返回结果对象的Class对象
+    Class<?> resultTypeClass = resolveClass(resultType); 
     
     // FORWARD_ONLY，SCROLL_SENSITIVE或SCROLL_INSENSITIVE中的一个,默认值为 unset(依赖驱动)。
     String resultSetType = context.getStringAttribute("resultSetType");
@@ -114,13 +116,12 @@ public class XMLStatementBuilder extends BaseBuilder {
     boolean isSelect = sqlCommandType == SqlCommandType.SELECT;  // 判断是否为SELECT节点
     
     // 将其设置为 true，任何时候只要语句被调用，都会导致本地缓存和二级缓存都会被清空，默认值：false。
-    
     // select节点时=默认为false,update|insert|delete节点=默认为true
     // flushCache表示会刷新一级和二级缓存
     boolean flushCache = context.getBooleanAttribute("flushCache", !isSelect);
     
     
-    // 将其设置为 true，将会导致本条语句的结果被二级缓存，默认值：对 select 元素为 true。
+    // 将其设置为 true，将会导致本条语句的结果被二级缓存，默认值：对 select元素为 true。
     // select节点时=默认为true,update|insert|delete节点=默认为false
     boolean useCache = context.getBooleanAttribute("useCache", isSelect);
     
@@ -148,7 +149,7 @@ public class XMLStatementBuilder extends BaseBuilder {
 
     String keyProperty = context.getStringAttribute("keyProperty");
     
-    // （仅对 insert和 update有用）通过生成的键值设置表中的列名，
+    // (仅对 insert和 update有用)通过生成的键值设置表中的列名，
     // 这个设置仅在某些数据库(像 PostgreSQL)是必须的,当主键列不是表中的第一列的时候需要设置。
     // 如果希望得到多个生成的列，也可以是逗号分隔的属性名称列表。
     String keyColumn = context.getStringAttribute("keyColumn");
@@ -163,15 +164,13 @@ public class XMLStatementBuilder extends BaseBuilder {
     // 这里检测SQL节点中是否配置<selectKey>节点、SQL节点的useGeneratorKeys属性值、
     // mybatis-config.xml中全局的useGeneratorKeys配置，以及是否为insert语句，决定使用的
     // KeyGenerator接口实现
-    
-    
+
     // 看是否有keyStatementId对应的KeyGenerator对象
     if (configuration.hasKeyGenerator(keyStatementId)) { 
       keyGenerator = configuration.getKeyGenerator(keyStatementId);
     } else {
-    	
       // (仅对 insert和 update有用)这会令 MyBatis 
-      // 使用 JDBC 的 getGeneratedKeys 方法来取出由数据库内部生成的主键（比如：像 MySQL 和 SQL Server 这样的关系数据库管理系统的自动递增字段），
+      // 使用 JDBC 的 getGeneratedKeys 方法来取出由数据库内部生成的主键(比如:像 MySQL和SQL Server这样的关系数据库管理系统的自动递增字段)，
       // 默认值：false。
       // 默认值排序:useGeneratedKeys -> Jdbc3KeyGenerator -> NoKeyGenerator
       keyGenerator = context.getBooleanAttribute("useGeneratedKeys",
@@ -187,6 +186,7 @@ public class XMLStatementBuilder extends BaseBuilder {
         keyGenerator, keyProperty, keyColumn, databaseId, langDriver, resultSets);
   }
 
+  // 处理<SelectKey>元素节点
   private void processSelectKeyNodes(String id, Class<?> parameterTypeClass, LanguageDriver langDriver) {
 /*	  <selectKey keyProperty="id" resultType="int" order="BEFORE">
 	    select CAST(RANDOM()*1000000 as INTEGER) a from SYSIBM.SYSDUMMY1
@@ -208,8 +208,7 @@ public class XMLStatementBuilder extends BaseBuilder {
       // <selectKey>节点，并调用parseSelectKeyNode()方法处理每个<selectKey>节点
       String id = parentId + SelectKeyGenerator.SELECT_KEY_SUFFIX;
       String databaseId = nodeToHandle.getStringAttribute("databaseId");
-      
-      
+
       if (databaseIdMatchesCurrent(id, databaseId, skRequiredDatabaseId)) {
         parseSelectKeyNode(id, nodeToHandle, parameterTypeClass, langDriver, databaseId);
       }
@@ -224,9 +223,13 @@ public class XMLStatementBuilder extends BaseBuilder {
    * @param langDriver LanguageDriver对象，用于创建SqlSource对象
    * @param databaseId 数据库厂商id
    */
+  // 注解形式:@SelectKey(statement = "select last_insert_id()" ,keyProperty = "id",keyColumn = "id",resultType = int.class,before = false)
+  // xml形式:
+  // <SelectKey keyProperty = "id" , keyColumn = "id" ,order = "After" , resultType = "int" , statementType = "PREPARED">
+  // 	select last_insert_id();
+  // </SelectKey>
   private void parseSelectKeyNode(String id, XNode nodeToHandle, Class<?> parameterTypeClass, LanguageDriver langDriver, String databaseId) {
     // 获取<selectKey>节点属性(resultType/keyProperty/keyColumn)
-	
 	// 结果的类型。MyBatis 通常可以推算出来，但是为了更加确定写上也不会有什么问题。
 	// MyBatis 允许任何简单类型用作主键的类型，包括字符串。
 	// 如果希望作用于多个生成的列，则可以使用一个包含期望属性的 Object 或一个 Map。
@@ -242,9 +245,9 @@ public class XMLStatementBuilder extends BaseBuilder {
     // 	匹配属性的返回结果集中的列名称。如果希望得到多个生成的列，也可以是逗号分隔的属性名称列表。
     String keyColumn = nodeToHandle.getStringAttribute("keyColumn");
     
-    // 这可以被设置为 BEFORE 或 AFTER。
-    // 如果设置为 BEFORE，那么它会首先选择主键，设置 keyProperty 然后执行插入语句。
-    // 如果设置为 AFTER，那么先执行插入语句，然后是 selectKey 元素 - 这和像 Oracle 的数据库相似，在插入语句内部可能有嵌入索引调用。
+    // 这可以被设置为BEFORE或AFTER。
+    // 如果设置为 BEFORE，那么它会首先选择主键，设置keyProperty然后执行插入语句。
+    // 如果设置为 AFTER，那么先执行插入语句，然后是selectKey元素-这和像Oracle的数据库相似，在插入语句内部可能有嵌入索引调用。
     
     // 默认值为AFTER属性
     boolean executeBefore = "BEFORE".equals(nodeToHandle.getStringAttribute("order", "AFTER"));
@@ -294,6 +297,7 @@ public class XMLStatementBuilder extends BaseBuilder {
     }
   }
 
+ // 判断SQL语句ID与database所需要的ID是否一致
   private boolean databaseIdMatchesCurrent(String id, String databaseId, String requiredDatabaseId) {
     if (requiredDatabaseId != null) { // requiredDatabaseId不为空
       if (!requiredDatabaseId.equals(databaseId)) { // databaseId与requiredDatabaseId不相等时
@@ -315,6 +319,7 @@ public class XMLStatementBuilder extends BaseBuilder {
     return true;
   }
 
+  // 获取LanguageDriver对象,默认为XMLLanguageDriver对象
   private LanguageDriver getLanguageDriver(String lang) {
     Class<?> langClass = null;
     if (lang != null) {
