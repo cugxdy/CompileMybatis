@@ -32,13 +32,13 @@ import org.w3c.dom.NodeList;
 /**
  * @author Frank D. Martinez [mnesarco]
  */
+// 处理<include>子节点
 public class XMLIncludeTransformer {
 
   private final Configuration configuration;
   private final MapperBuilderAssistant builderAssistant;
 
   public XMLIncludeTransformer(Configuration configuration, MapperBuilderAssistant builderAssistant) {
-	  
     this.configuration = configuration; // 配置项
     this.builderAssistant = builderAssistant; // 辅助操作类
     
@@ -104,6 +104,7 @@ public class XMLIncludeTransformer {
           attr.setNodeValue(PropertyParser.parse(attr.getNodeValue(), variablesContext));
         }
       }
+      
       NodeList children = source.getChildNodes();
       for (int i = 0; i < children.getLength(); i++) {
         applyIncludes(children.item(i), variablesContext, included);
@@ -116,8 +117,9 @@ public class XMLIncludeTransformer {
     }
   }
 
+  // 依据<include>节点中的refid属性值去寻找SqlFragment对象(Node对象)
   private Node findSqlFragment(String refid, Properties variables) {
-	// 字符串解析操作  
+	// 字符串解析操作  // 替换${...}中内容
     refid = PropertyParser.parse(refid, variables);  // 处理refid其中占位符
     
     // 修饰字符串[namespace.refid]
@@ -132,6 +134,7 @@ public class XMLIncludeTransformer {
     }
   }
 
+  // 返回refid属性值
   private String getStringAttribute(Node node, String name) {
 	// 在node节点中返回name属性指定的值
     return node.getAttributes().getNamedItem(name).getNodeValue();
@@ -143,7 +146,7 @@ public class XMLIncludeTransformer {
    * @param inheritedVariablesContext Current context used for replace variables in new variables values
    * @return variables context from include instance (no inherited values)
    */
-  // 获取<include>子节点的Properties值
+  // 获取<include>子节点的property中的key-value值
   private Properties getVariablesContext(Node node, Properties inheritedVariablesContext) {
     
 	// 创建declaredProperties变量
