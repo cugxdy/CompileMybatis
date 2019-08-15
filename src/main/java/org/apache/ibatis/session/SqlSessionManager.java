@@ -32,6 +32,7 @@ import org.apache.ibatis.reflection.ExceptionUtil;
 /**
  * @author Larry Meadors
  */
+// 为SqlSessionFactory创建代理对象
 public class SqlSessionManager implements SqlSessionFactory, SqlSession {
 
   private final SqlSessionFactory sqlSessionFactory; // 底层封装的SqlSessionFactory对象
@@ -55,6 +56,7 @@ public class SqlSessionManager implements SqlSessionFactory, SqlSession {
         new Class[]{SqlSession.class},
         new SqlSessionInterceptor());
   }
+  
   // 通过newInstance()方法创建SqlSessionManager对象
   public static SqlSessionManager newInstance(Reader reader) {
     return new SqlSessionManager(new SqlSessionFactoryBuilder().build(reader, null, null));
