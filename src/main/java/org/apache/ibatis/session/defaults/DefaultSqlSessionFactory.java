@@ -34,27 +34,32 @@ import org.apache.ibatis.transaction.managed.ManagedTransactionFactory;
 /**
  * @author Clinton Begin
  */
-// 它是用来创建SqlSession实现类对象的工厂
+// 它是用来创建SqlSession实现类对象的工厂(工厂模式)
 public class DefaultSqlSessionFactory implements SqlSessionFactory {
 
+  // 全局配置类
   private final Configuration configuration;  // 配置读取的文件
 
   public DefaultSqlSessionFactory(Configuration configuration) {
     this.configuration = configuration;
   }
 
+  // 创建SqlSession对象
   public SqlSession openSession() {
     return openSessionFromDataSource(configuration.getDefaultExecutorType(), null, false);
   }
 
+  // 创建SqlSession对象(autoCommit)
   public SqlSession openSession(boolean autoCommit) {
     return openSessionFromDataSource(configuration.getDefaultExecutorType(), null, autoCommit);
   }
 
+  // 创建SqlSession对象(执行器类型)
   public SqlSession openSession(ExecutorType execType) {
     return openSessionFromDataSource(execType, null, false);
   }
 
+  // 创建SqlSession对象(事务隔离级别)
   public SqlSession openSession(TransactionIsolationLevel level) {
     return openSessionFromDataSource(configuration.getDefaultExecutorType(), level, false);
   }
@@ -114,6 +119,8 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
     }
   }
 
+  // 使用数据库连接创建SqlSession对象
+  // 一般用于Web容器处理,即Spring 事务支持之类的 
   private SqlSession openSessionFromConnection(ExecutorType execType, Connection connection) {
     try {
       boolean autoCommit;
@@ -144,6 +151,7 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
   }
 
   // 获取Environment对象中的TransactionFactory对象
+  // 默认为ManagedTransactionFactory事务管理对象
   private TransactionFactory getTransactionFactoryFromEnvironment(Environment environment) {
     if (environment == null || environment.getTransactionFactory() == null) {
       return new ManagedTransactionFactory();
@@ -151,6 +159,7 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
     return environment.getTransactionFactory();
   }
 
+  // 事务对象关闭
   private void closeTransaction(Transaction tx) {
     if (tx != null) {
       try {
