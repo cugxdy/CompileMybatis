@@ -57,7 +57,6 @@ public class PropertyParser {
   }
 
   public static String parse(String string, Properties variables) {
-	  
     VariableTokenHandler handler = new VariableTokenHandler(variables);
     // 创建GenericTokenParser对象，并指定其处理的占位符格式为"${}"
     GenericTokenParser parser = new GenericTokenParser("${", "}", handler);
@@ -68,8 +67,10 @@ public class PropertyParser {
 	  
     private final Properties variables; // <properties>节点下定义的键值对，用于替换占位符
     
+    // 默认为 false
     private final boolean enableDefaultValue;// 是否支持占位符使用默认的功能
     
+    // 默认为 ':'
     private final String defaultValueSeparator;// 指定占位符和默认值之间的分隔符
 
     private VariableTokenHandler(Properties variables) {
