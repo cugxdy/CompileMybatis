@@ -30,6 +30,7 @@ import org.apache.ibatis.session.defaults.DefaultSqlSessionFactory;
  *
  * @author Clinton Begin
  */
+// 创建DefaultSqlSessionFactory=对象
 public class SqlSessionFactoryBuilder {
 	
   //Reader读取mybatis配置文件，传入构造方法
