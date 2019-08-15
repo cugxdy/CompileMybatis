@@ -18,6 +18,7 @@ package org.apache.ibatis.scripting.xmltags;
 /**
  * @author Clinton Begin
  */
+// 条件判断语句,根据输入参数的值去决定那些去执行
 public class IfSqlNode implements SqlNode {
   // ExpressionEvaluator对象用来解析<if>节点的test表达式的值
   private final ExpressionEvaluator evaluator;
