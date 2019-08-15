@@ -31,6 +31,9 @@ import org.apache.ibatis.transaction.TransactionFactory;
  *
  * @see JdbcTransaction
  */
+//<transactionManager type="JDBC">
+//	<property name="..." value="..."/>
+//</transactionManager>
 public class JdbcTransactionFactory implements TransactionFactory {
 
   public void setProperties(Properties props) {
