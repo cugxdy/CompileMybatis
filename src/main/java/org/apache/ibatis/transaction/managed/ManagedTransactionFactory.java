@@ -31,10 +31,14 @@ import org.apache.ibatis.transaction.TransactionFactory;
  *
  * @see ManagedTransaction
  */
+// <transactionManager type="MANAGED">
+// 		<property name="..." value="..."/>
+// </transactionManager>
 public class ManagedTransactionFactory implements TransactionFactory {
 
   private boolean closeConnection = true;
 
+  // 设置是否关闭连接,从key-value键值对中获取closeConnection属性值
   public void setProperties(Properties props) {
     if (props != null) {
       String closeConnectionProperty = props.getProperty("closeConnection");
@@ -48,6 +52,7 @@ public class ManagedTransactionFactory implements TransactionFactory {
     return new ManagedTransaction(conn, closeConnection);
   }
 
+  // 创建Transaction对象
   public Transaction newTransaction(DataSource ds, TransactionIsolationLevel level, boolean autoCommit) {
     // Silently ignores autocommit and isolation level, as managed transactions are entirely
     // controlled by an external manager.  It's silently ignored so that
