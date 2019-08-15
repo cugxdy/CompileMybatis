@@ -60,6 +60,7 @@ public class DefaultSqlSession implements SqlSession {
   // 在DefaultSqlSession.close()方法中统一关闭这些游标对象
   private List<Cursor<?>> cursorList;
 
+  // 创建DefaultSqlSession对象
   public DefaultSqlSession(Configuration configuration, Executor executor, boolean autoCommit) {
     this.configuration = configuration;
     this.executor = executor;
@@ -87,12 +88,11 @@ public class DefaultSqlSession implements SqlSession {
   		session.close();
 	}
 */
-  // 查询语句
+  // 查询并处理第一个结果集行
   public <T> T selectOne(String statement, Object parameter) {
     // Popular vote was to return null on 0 results and throw exception on too many.
     List<T> list = this.<T>selectList(statement, parameter); // 调用重载方法执行查询数据
     if(list != null) {
-    	
         Iterator<T> itor = list.iterator();
         while(itor.hasNext()) {
         	T obj = itor.next();
@@ -109,21 +109,25 @@ public class DefaultSqlSession implements SqlSession {
     }
   }
 
+  // 返回Map对象(不存在参数)
   public <K, V> Map<K, V> selectMap(String statement, String mapKey) {
     return this.selectMap(statement, null, mapKey, RowBounds.DEFAULT);
   }
 
+  // 返回Map对象(存在parameter参数)
   public <K, V> Map<K, V> selectMap(String statement, Object parameter, String mapKey) {
     return this.selectMap(statement, parameter, mapKey, RowBounds.DEFAULT);
   }
 
+  // 返回Map对象(并利用DefaultMapResultHandler对象去处理)
   public <K, V> Map<K, V> selectMap(String statement, Object parameter, String mapKey, RowBounds rowBounds) {
     
 	final List<? extends V> list = selectList(statement, parameter, rowBounds);
     
 	final DefaultMapResultHandler<K, V> mapResultHandler = new DefaultMapResultHandler<K, V>(mapKey,
         configuration.getObjectFactory(), configuration.getObjectWrapperFactory(), configuration.getReflectorFactory());
-    final DefaultResultContext<V> context = new DefaultResultContext<V>();
+    
+	final DefaultResultContext<V> context = new DefaultResultContext<V>();
     for (V o : list) {
       context.nextResultObject(o);
       mapResultHandler.handleResult(context);
@@ -131,14 +135,17 @@ public class DefaultSqlSession implements SqlSession {
     return mapResultHandler.getMappedResults();
   }
 
+  // 返回Cursor对象(不存在参数)
   public <T> Cursor<T> selectCursor(String statement) {
     return selectCursor(statement, null);
   }
 
+  // 返回Cursor对象(存在parameter参数)
   public <T> Cursor<T> selectCursor(String statement, Object parameter) {
     return selectCursor(statement, parameter, RowBounds.DEFAULT);
   }
 
+  // 查询Cursor对象并进行注册
   public <T> Cursor<T> selectCursor(String statement, Object parameter, RowBounds rowBounds) {
     try {
       MappedStatement ms = configuration.getMappedStatement(statement);
@@ -152,14 +159,17 @@ public class DefaultSqlSession implements SqlSession {
     }
   }
 
+  // 返回List对象(不存在参数)
   public <E> List<E> selectList(String statement) {
     return this.selectList(statement, null);
   }
 
+  // 返回List对象(存在parameter参数)
   public <E> List<E> selectList(String statement, Object parameter) {
     return this.selectList(statement, parameter, RowBounds.DEFAULT);
   }
 
+  // 返回List对象
   public <E> List<E> selectList(String statement, Object parameter, RowBounds rowBounds) {
     try {
     	
@@ -195,18 +205,22 @@ public class DefaultSqlSession implements SqlSession {
     }
   }
 
+  // 向数据库中插入数据
   public int insert(String statement) {
     return insert(statement, null);
   }
 
+  // 向数据库中插入数据parameter
   public int insert(String statement, Object parameter) {
     return update(statement, parameter);
   }
 
+  // 向数据库中更新数据
   public int update(String statement) {
     return update(statement, null);
   }
 
+  // 向数据库中更新数据parameter
   public int update(String statement, Object parameter) {
     try {
       // 标识为脏数据
@@ -222,19 +236,22 @@ public class DefaultSqlSession implements SqlSession {
     }
   }
 
+  // 向数据库中删除数据
   public int delete(String statement) {
     return update(statement, null);
   }
 
+  // 向数据库中删除数据parameter
   public int delete(String statement, Object parameter) {
     return update(statement, parameter);
   }
 
-  // 执行提交
+  // 执行事务提交
   public void commit() {
     commit(false);
   }
 
+  // 执行事务提交
   public void commit(boolean force) {
     try {
       executor.commit(isCommitOrRollbackRequired(force));
@@ -246,10 +263,12 @@ public class DefaultSqlSession implements SqlSession {
     }
   }
 
+  // 执行事务回滚
   public void rollback() {
     rollback(false);
   }
 
+  // 执行事务回滚
   public void rollback(boolean force) {
     try {
       executor.rollback(isCommitOrRollbackRequired(force));
@@ -261,6 +280,7 @@ public class DefaultSqlSession implements SqlSession {
     }
   }
 
+  // 返回批处理结果
   public List<BatchResult> flushStatements() {
     try {
       return executor.flushStatements();
@@ -271,6 +291,7 @@ public class DefaultSqlSession implements SqlSession {
     }
   }
 
+  // 关闭sqlsession相对应的资源
   public void close() {
     try {
       executor.close(isCommitOrRollbackRequired(false));
@@ -281,6 +302,7 @@ public class DefaultSqlSession implements SqlSession {
     }
   }
 
+  // 清理相关游标对象
   private void closeCursors() {
     if (cursorList != null && cursorList.size() != 0) {
       for (Cursor<?> cursor : cursorList) {
@@ -294,16 +316,16 @@ public class DefaultSqlSession implements SqlSession {
     }
   }
 
+  // 获取Configuration对象
   public Configuration getConfiguration() {
     return configuration;
   }
 
-  public <T> T getMapper(Class<T> type) {
-	  
-    // return configuration.<T>getMapper(type, this);
-	  return null;
+  public <T> T getMapper(Class<T> type) {  
+     return configuration.<T>getMapper(type, this);
   }
 
+  // 获取数据库连接对象Connection对象
   public Connection getConnection() {
     try {
       return executor.getTransaction().getConnection();
@@ -312,10 +334,12 @@ public class DefaultSqlSession implements SqlSession {
     }
   }
 
+  // 清理SqlSession中的缓存对象
   public void clearCache() {
     executor.clearLocalCache();
   }
 
+  // 注册游标对象
   private <T> void registerCursor(Cursor<T> cursor) {
     if (cursorList == null) {
       cursorList = new ArrayList<Cursor<?>>();
@@ -330,11 +354,15 @@ public class DefaultSqlSession implements SqlSession {
   }
 
   // 将list、set、array结构数据转换成map形式
+  // Collection(list,set) :  (collection = object);
+  // Collection(list) :  (list = object);
+  // Array : (array = object)
+  // Object : (object)
   private Object wrapCollection(final Object object) {
 	  // Map不属于Collection接口
     if (object instanceof Collection) {
       StrictMap<Object> map = new StrictMap<Object>();
-      map.put("collection", object); // 对map的处理
+      map.put("collection", object); // 对set/list的处理
       if (object instanceof List) {
         map.put("list", object); // 对list的处理
       }
@@ -344,7 +372,6 @@ public class DefaultSqlSession implements SqlSession {
       map.put("array", object); // 对数组的处理
       return map;
     }
-    System.out.println("ObjectClass = "  + object.getClass().getName());
     return object;
   }
 
