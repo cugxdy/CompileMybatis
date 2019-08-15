@@ -22,13 +22,14 @@ package org.apache.ibatis.scripting.xmltags;
 public class VarDeclSqlNode implements SqlNode {
 
   private final String name; // 记录了<bind>节点的name属性值
-  private final String expression;// 记录了<bind>节点的expression属性值
+  private final String expression;// 记录了<bind>节点的value属性值
 
   public VarDeclSqlNode(String var, String exp) {
     name = var;
     expression = exp;
   }
 
+  // 它是为SQL节点解析过程中,绑定额外参数
   @Override
   public boolean apply(DynamicContext context) {
 	// 解析OGNL表达式的值
