@@ -18,6 +18,7 @@ package org.apache.ibatis.scripting.xmltags;
 /**
  * @author Clinton Begin
  */
+// 它是纯文本的sql语句,不包含${...} 和 #{...} 标签信息
 public class StaticTextSqlNode implements SqlNode {
   private final String text;
 
