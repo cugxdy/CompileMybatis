@@ -35,9 +35,11 @@ public class TextSqlNode implements SqlNode {
   
   public TextSqlNode(String text, Pattern injectionFilter) {
     this.text = text;
+    // 正则表达式
     this.injectionFilter = injectionFilter;
   }
   
+  // 判断当前文本中是否存在${...}节点
   public boolean isDynamic() {
     DynamicCheckerTokenParser checker = new DynamicCheckerTokenParser();
     // 创建GenericTokenParser对象，去解析"${}"字符串
@@ -59,6 +61,7 @@ public class TextSqlNode implements SqlNode {
     return new GenericTokenParser("${", "}", handler); // 解析的是"${}"占位符
   }
 
+  // 它是用于对${...}字符串进行替换的
   private static class BindingTokenParser implements TokenHandler {
 
     private DynamicContext context;
@@ -87,6 +90,7 @@ public class TextSqlNode implements SqlNode {
       return srtValue;
     }
 
+    // 正则表达式匹配
     private void checkInjection(String value) {
       if (injectionFilter != null && !injectionFilter.matcher(value).matches()) {
         throw new ScriptingException("Invalid input. Please conform to regex" + injectionFilter.pattern());
