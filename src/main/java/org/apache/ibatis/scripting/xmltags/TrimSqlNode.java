@@ -61,6 +61,7 @@ public class TrimSqlNode implements SqlNode {
     filteredDynamicContext.applyAll();
     return result;
   }
+  
   // parseOverrides方法对参数prefixesToOverride(对应<trim>节点的prefixesToOverride属性解析)和
   // 参数suffixesToOverride(对应<trim>节点的suffixesToOverride属性解析)，并初始化prefixesToOverride
   // 和suffixesToOverride字段
