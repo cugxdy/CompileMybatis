@@ -34,10 +34,13 @@ import org.apache.ibatis.transaction.Transaction;
  *
  * @see ManagedTransactionFactory
  */
+// 它作为工厂模式的产品
 public class ManagedTransaction implements Transaction {
 
   private static final Log log = LogFactory.getLog(ManagedTransaction.class);
 
+  // 1、UnpooledDataSource
+  // 1、pooledDatabase
   private DataSource dataSource;  // 数据dataSource
   
   private TransactionIsolationLevel level;  // 事务隔离级别
@@ -46,6 +49,7 @@ public class ManagedTransaction implements Transaction {
   
   private final boolean closeConnection; // 是否关闭数据库的连接
 
+  // 创建ManagedTransaction对象
   public ManagedTransaction(Connection connection, boolean closeConnection) {
     this.connection = connection;
     this.closeConnection = closeConnection;
@@ -57,6 +61,7 @@ public class ManagedTransaction implements Transaction {
     this.closeConnection = closeConnection;
   }
 
+  // 获取数据连接
   public Connection getConnection() throws SQLException {
     if (this.connection == null) {
       openConnection();
@@ -64,14 +69,17 @@ public class ManagedTransaction implements Transaction {
     return this.connection;
   }
 
+  // 事务提交
   public void commit() throws SQLException {
     // Does nothing
   }
 
+  // 事务回滚
   public void rollback() throws SQLException {
     // Does nothing
   }
 
+  // 关闭数据库
   public void close() throws SQLException {
     if (this.closeConnection && this.connection != null) {
       if (log.isDebugEnabled()) {
@@ -81,6 +89,7 @@ public class ManagedTransaction implements Transaction {
     }
   }
 
+  // 从数据库中打开数据库连接
   protected void openConnection() throws SQLException {
     if (log.isDebugEnabled()) {
       log.debug("Opening JDBC Connection");
@@ -92,6 +101,7 @@ public class ManagedTransaction implements Transaction {
     }
   }
 
+  // 获取超时时间
   public Integer getTimeout() throws SQLException {
     return null;
   }
