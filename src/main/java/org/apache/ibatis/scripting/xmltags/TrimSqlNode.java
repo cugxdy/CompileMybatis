@@ -30,18 +30,31 @@ import org.apache.ibatis.session.Configuration;
 public class TrimSqlNode implements SqlNode {
 
   private final SqlNode contents; // 该<trim>节点的子节点
+  
   private final String prefix; // 记录了前缀字符串<为<trim>节点包裹的SQL语句添加的前缀>
   private final String suffix; // 记录了后缀字符串<为<trim>节点包裹的SQL语句添加的后缀>
+  
   // 如果<trim>节点包裹的SQL语句是空语句(经常出现在if判断为否的情况下),删除指定的前缀，如where
   private final List<String> prefixesToOverride;
+  
   // 如果<trim>节点包裹的SQL语句是空语句(经常出现在if判断为否的情况下),删除指定的后缀，如,
   private final List<String> suffixesToOverride;
+  
   private final Configuration configuration;
 
   public TrimSqlNode(Configuration configuration, SqlNode contents, String prefix, String prefixesToOverride, String suffix, String suffixesToOverride) {
     this(configuration, contents, prefix, parseOverrides(prefixesToOverride), suffix, parseOverrides(suffixesToOverride));
   }
 
+  /**
+   * 创建TrimSqlNode对象
+   * @param configuration   全局配置对象
+   * @param contents trim元素节点下的节点集合
+   * @param prefix 前缀
+   * @param prefixesToOverride  (当为空时)可能需要删除的前缀
+   * @param suffix 后缀
+   * @param suffixesToOverride  (当为空时)可能需要删除的后缀
+   */
   protected TrimSqlNode(Configuration configuration, SqlNode contents, String prefix, List<String> prefixesToOverride, String suffix, List<String> suffixesToOverride) {
     this.contents = contents;
     this.prefix = prefix;
@@ -78,7 +91,9 @@ public class TrimSqlNode implements SqlNode {
     return Collections.emptyList();
   }
 
+  // 创建FilteredDynamicContext对象
   private class FilteredDynamicContext extends DynamicContext {
+	  
     private DynamicContext delegate; // 底层封装的DynamicContext对象
     // 是否已经处理过前缀和后缀，初始值为false
     private boolean prefixApplied;
@@ -99,6 +114,7 @@ public class TrimSqlNode implements SqlNode {
       // 获取子节点解析后的结果，并全部转换为大写
       sqlBuffer = new StringBuilder(sqlBuffer.toString().trim());
       String trimmedUppercaseSql = sqlBuffer.toString().toUpperCase(Locale.ENGLISH);
+      
       if (trimmedUppercaseSql.length() > 0) {
         applyPrefix(sqlBuffer, trimmedUppercaseSql); // 处理前缀
         applySuffix(sqlBuffer, trimmedUppercaseSql); // 处理后缀
@@ -106,12 +122,12 @@ public class TrimSqlNode implements SqlNode {
       delegate.appendSql(sqlBuffer.toString());// 将解析后的结果添加到delegate中
     }
 
-    @Override
+    @Override// 获取bind对象(Map)
     public Map<String, Object> getBindings() {
       return delegate.getBindings();
     }
 
-    @Override
+    @Override// 绑定<bind>元素节点
     public void bind(String name, Object value) {
       delegate.bind(name, value);
     }
@@ -121,6 +137,7 @@ public class TrimSqlNode implements SqlNode {
       return delegate.getUniqueNumber();
     }
 
+    // 将Trim下所有的动态元素节点append进sqlBuffer
     @Override
     public void appendSql(String sql) {
       sqlBuffer.append(sql);
@@ -138,11 +155,13 @@ public class TrimSqlNode implements SqlNode {
           for (String toRemove : prefixesToOverride) { // 遍历prefixesToOverride集合
         	// 如果是以prefixesToOverride中某项开头，则将该项从SQL语句开头中删除
             if (trimmedUppercaseSql.startsWith(toRemove)) {
+              // 删除指定的前缀字符串
               sql.delete(0, toRemove.trim().length());
               break;
             }
           }
         }
+        // 加入前缀字符串
         if (prefix != null) { // 添加prefix前缀
           sql.insert(0, " ");
           sql.insert(0, prefix);
@@ -164,7 +183,8 @@ public class TrimSqlNode implements SqlNode {
             }
           }
         }
-        if (suffix != null) {// 添加prefix后缀
+        // 添加prefix后缀
+        if (suffix != null) {
           sql.append(" ");
           sql.append(suffix);
         }
