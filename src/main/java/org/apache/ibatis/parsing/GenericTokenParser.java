@@ -66,7 +66,7 @@ public class GenericTokenParser {
       } else {
         // found open token. let's search close token.
     	// 查找开始标记，并且为转义
-    	  System.out.println("expression = " + expression);
+    	System.out.println("expression = " + expression);
         if (expression == null) {
           expression = new StringBuilder();
         } else {
