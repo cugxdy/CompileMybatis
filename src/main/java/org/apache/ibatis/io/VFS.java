@@ -47,6 +47,7 @@ public abstract class VFS {
   public static final List<Class<? extends VFS>> USER_IMPLEMENTATIONS = new ArrayList<Class<? extends VFS>>();
 
   /** Singleton instance holder. */
+  // 静态内部类单例模式
   private static class VFSHolder {
 	// 单例模式，记录了全局唯一的VFS对象 
     static final VFS INSTANCE = createVFS();
@@ -95,6 +96,7 @@ public abstract class VFS {
    * Get the singleton {@link VFS} instance. If no {@link VFS} implementation can be found for the
    * current environment, then this method returns null.
    */
+  // 获取唯一实例
   public static VFS getInstance() {
     return VFSHolder.INSTANCE;
   }
@@ -113,6 +115,7 @@ public abstract class VFS {
   }
 
   /** Get a class by name. If the class is not found then return null. */
+  // 由ClassName获取Class对象
   protected static Class<?> getClass(String className) {
     try {
       // 加载类并返回Class对象
@@ -133,6 +136,7 @@ public abstract class VFS {
    * @param methodName The name of the method.
    * @param parameterTypes The types of the parameters accepted by the method.
    */
+  // 获取Class对象指定参数类型的Method对象
   protected static Method getMethod(Class<?> clazz, String methodName, Class<?>... parameterTypes) {
     if (clazz == null) {
       return null;
@@ -159,7 +163,7 @@ public abstract class VFS {
    * @throws IOException If I/O errors occur
    * @throws RuntimeException If anything else goes wrong
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("unchecked")// 调用指定对象的Method方法对象
   protected static <T> T invoke(Method method, Object object, Object... parameters)
       throws IOException, RuntimeException {
     try {
@@ -192,6 +196,7 @@ public abstract class VFS {
   }
 
   /** Return true if the {@link VFS} implementation is valid for the current environment. */
+  // 验证VFS实现类是否有效
   public abstract boolean isValid();
 
   /**
@@ -214,6 +219,7 @@ public abstract class VFS {
    * @return A list containing the names of the child resources.
    * @throws IOException If I/O errors occur
    */
+  // path = net/sourceforge/stripes
   public List<String> list(String path) throws IOException {
 	// 创建List<String>对象
     List<String> names = new ArrayList<String>();
