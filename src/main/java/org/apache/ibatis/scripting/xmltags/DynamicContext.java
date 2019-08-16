@@ -75,7 +75,6 @@ public class DynamicContext {
     	System.out.println("key = " + entry.getKey() + " value = " + entry.getValue());
     }
     
-    
   }
 
   public Map<String, Object> getBindings() {
@@ -95,10 +94,12 @@ public class DynamicContext {
     return sqlBuilder.toString().trim();
   }
 
+  // 获取唯一码
   public int getUniqueNumber() {
     return uniqueNumber++;
   }
 
+  // 静态内部类HashMap<String, Object>对象
   static class ContextMap extends HashMap<String, Object> {
     private static final long serialVersionUID = 2977601501966151582L;
 
