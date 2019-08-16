@@ -32,18 +32,21 @@ import org.w3c.dom.NodeList;
 /**
  * @author Clinton Begin
  */
+// 它是对xml映射文件的解析
 public class XMLScriptBuilder extends BaseBuilder {
 
+  // insert、select、update、query等SQL节点
   private final XNode context;  // 当前SQL节点
 
-  private boolean isDynamic; // 是否动态SQL  包含 #{}、if、where、trim、foreach、set、otherwise等节点
+  private boolean isDynamic; // 是否动态SQL  包含 ${}、#{}、if、where、trim、foreach、set、otherwise等节点
   
   private final Class<?> parameterType;  // 解析查询节点时的parameterType对应的Class对象
   private final Map<String, NodeHandler> nodeHandlerMap = new HashMap<String, NodeHandler>();
 
+  
   public XMLScriptBuilder(Configuration configuration, XNode context) {
     this(configuration, context, null);
-  }
+  } 
 
   public XMLScriptBuilder(Configuration configuration, XNode context, Class<?> parameterType) {
     super(configuration);
@@ -53,6 +56,7 @@ public class XMLScriptBuilder extends BaseBuilder {
   }
 
 
+  // 记录动态Sql元素节点的Map对象
   private void initNodeHandlerMap() {
 	// 初始化nodeHandlerMap集合     该集合用来处理sql语句中包含的Mybatis标准的动态节点
     nodeHandlerMap.put("trim", new TrimHandler());
@@ -66,6 +70,7 @@ public class XMLScriptBuilder extends BaseBuilder {
     nodeHandlerMap.put("bind", new BindHandler());
   }
 
+  // 解析SQL动态语句
   public SqlSource parseScriptNode() {
 	// 首先判断当前的节点的是不是动态的SQL，动态SQL会包括占位符或是动态sql的相关节点
     MixedSqlNode rootSqlNode = parseDynamicTags(context);
@@ -80,7 +85,11 @@ public class XMLScriptBuilder extends BaseBuilder {
     return sqlSource;
   }
 
+  // 返回MixedSqlNode对象
+  // 它会对if、choose、trim、set、where、when节点进行解析
+  // 静态文本解析,动态节点解析
   protected MixedSqlNode parseDynamicTags(XNode node) {
+	  
     List<SqlNode> contents = new ArrayList<SqlNode>(); // 用来记录生成的SqlNode集合
     NodeList children = node.getNode().getChildNodes();// 获取SelectKey的所有子节点 后面的SQL节点也会进入这里
     
@@ -116,11 +125,13 @@ public class XMLScriptBuilder extends BaseBuilder {
     // 创建并返回MixedSqlNode对象
     return new MixedSqlNode(contents);
   }
+  
   // nodeHandlerMap接口中handleNode处理if、foreach、where等表达式
   private interface NodeHandler {
     void handleNode(XNode nodeToHandle, List<SqlNode> targetContents);
   }
 
+  // 处理<Bind>元素节点对象
   private class BindHandler implements NodeHandler {
     public BindHandler() {
       // Prevent Synthetic Access
@@ -136,6 +147,46 @@ public class XMLScriptBuilder extends BaseBuilder {
     }
   }
 
+  /** trim批量插入语句
+  <insert id="insertSelective" parameterType="com.macro.mall.model.CmsTopic">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into cms_topic
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="categoryId != null">
+        category_id,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="startTime != null">
+        start_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="categoryId != null">
+        #{categoryId,jdbcType=BIGINT},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="startTime != null">
+        #{startTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endTime != null">
+        #{endTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+ */
+  // 处理Trim元素节点
   private class TrimHandler implements NodeHandler {
     public TrimHandler() {
       // Prevent Synthetic Access
@@ -144,15 +195,21 @@ public class XMLScriptBuilder extends BaseBuilder {
     @Override
     public void handleNode(XNode nodeToHandle, List<SqlNode> targetContents) {
       MixedSqlNode mixedSqlNode = parseDynamicTags(nodeToHandle);
+      
+      // 获取前缀表达式(prefix)
       String prefix = nodeToHandle.getStringAttribute("prefix");
+      // 获取前缀表达式(prefixOverrides需要删除的符号)
       String prefixOverrides = nodeToHandle.getStringAttribute("prefixOverrides");
+      // 获取后缀表达式(suffix)
       String suffix = nodeToHandle.getStringAttribute("suffix");
+      // 获取前缀表达式(suffixOverrides需要删除的符号)
       String suffixOverrides = nodeToHandle.getStringAttribute("suffixOverrides");
       TrimSqlNode trim = new TrimSqlNode(configuration, mixedSqlNode, prefix, prefixOverrides, suffix, suffixOverrides);
       targetContents.add(trim);
     }
   }
 
+  // 处理where元素节点
   private class WhereHandler implements NodeHandler {
     public WhereHandler() {
       // Prevent Synthetic Access
@@ -168,6 +225,21 @@ public class XMLScriptBuilder extends BaseBuilder {
     }
   }
 
+  /** 在具有不确定时更新多个字段
+  <update id="updateByPrimaryKeySelective" parameterType="com.macro.mall.model.CmsSubject">
+    update cms_subject
+    <set>
+      <if test="categoryId != null">
+        category_id = #{categoryId,jdbcType=BIGINT},
+      </if>
+      <if test="title != null">
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+   */
+  // 处理set元素节点
   private class SetHandler implements NodeHandler {
     public SetHandler() {
       // Prevent Synthetic Access
@@ -181,6 +253,28 @@ public class XMLScriptBuilder extends BaseBuilder {
     }
   }
 
+  /**
+<foreach collection="criteria.criteria" item="criterion">
+  <choose>
+    <when test="criterion.noValue">
+      and ${criterion.condition}
+    </when>
+    <when test="criterion.singleValue">
+      and ${criterion.condition} #{criterion.value}
+    </when>
+    <when test="criterion.betweenValue">
+      and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+    </when>
+    <when test="criterion.listValue">
+      and ${criterion.condition}
+      <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+        #{listItem}
+      </foreach>
+    </when>
+  </choose>
+</foreach>
+   */
+  // 处理foreach元素节点
   private class ForEachHandler implements NodeHandler {
     public ForEachHandler() {
       // Prevent Synthetic Access
@@ -202,6 +296,7 @@ public class XMLScriptBuilder extends BaseBuilder {
     }
   }
 
+  // 处理If元素节点
   private class IfHandler implements NodeHandler {
     public IfHandler() {
       // Prevent Synthetic Access
@@ -219,6 +314,7 @@ public class XMLScriptBuilder extends BaseBuilder {
     }
   }
 
+  // 处理OtherWise元素节点对象
   private class OtherwiseHandler implements NodeHandler {
     public OtherwiseHandler() {
       // Prevent Synthetic Access
@@ -233,6 +329,7 @@ public class XMLScriptBuilder extends BaseBuilder {
     }
   }
 
+  // 处理Choose元素节点
   private class ChooseHandler implements NodeHandler {
     public ChooseHandler() {
       // Prevent Synthetic Access
