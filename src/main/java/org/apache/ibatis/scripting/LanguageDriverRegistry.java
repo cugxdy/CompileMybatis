@@ -21,12 +21,14 @@ import java.util.Map;
 /**
  * @author Frank D. Martinez [mnesarco]
  */
+// LanguageDriver注册器,它主要是完成对SQL元素节点解析的引导工作
 public class LanguageDriverRegistry {
 
   private final Map<Class<?>, LanguageDriver> LANGUAGE_DRIVER_MAP = new HashMap<Class<?>, LanguageDriver>();
 
   private Class<?> defaultDriverClass;
 
+  // 向Map对象中去注册LanguageDriver对象
   public void register(Class<?> cls) {
     if (cls == null) {
       // 抛出异常
@@ -41,7 +43,7 @@ public class LanguageDriverRegistry {
       }
     }
   }
-
+  // 向Map对象中去注册LanguageDriver对象
   public void register(LanguageDriver instance) {
     if (instance == null) {
       throw new IllegalArgumentException("null is not a valid Language Driver");
@@ -52,10 +54,12 @@ public class LanguageDriverRegistry {
     }
   }
   
+  // 获取LanguageDriver实例对象
   public LanguageDriver getDriver(Class<?> cls) {
     return LANGUAGE_DRIVER_MAP.get(cls); // 获取LanguageDriver接口的实现类
   }
 
+  // 获取默认LanguageDriver实例对象
   public LanguageDriver getDefaultDriver() {
     return getDriver(getDefaultDriverClass());
   }
@@ -64,6 +68,7 @@ public class LanguageDriverRegistry {
     return defaultDriverClass;
   }
 
+  // 设置默认XMLLanguageDriver对象
   public void setDefaultDriverClass(Class<?> defaultDriverClass) {
     register(defaultDriverClass);
     this.defaultDriverClass = defaultDriverClass;
