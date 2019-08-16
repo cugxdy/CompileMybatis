@@ -31,6 +31,7 @@ import org.apache.ibatis.session.Configuration;
 /**
  * @author Eduardo Macarron
  */
+// 它是解析SQL语句的入口类
 public class XMLLanguageDriver implements LanguageDriver {
 
   @Override
@@ -39,7 +40,7 @@ public class XMLLanguageDriver implements LanguageDriver {
   }
 
   /**
-   * parameterType :  外层的Sql节点参数类型
+   * parameterType :  外层的Sql节点参数类型(输入参数)
    */
   @Override
   public SqlSource createSqlSource(Configuration configuration, XNode script, Class<?> parameterType) {
