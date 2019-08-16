@@ -25,9 +25,12 @@ import org.apache.ibatis.session.Configuration;
 /**
  * @author Clinton Begin
  */
+// 它是用于存储可执行SQL语句(不存在#{},${})的对象
 public class StaticSqlSource implements SqlSource {
 
   private final String sql;  // SQL语句
+  // 它存储着#{}字符串的解析结果对象
+  // property、javaType、jdbcType、jdbcTypeName、expression、mode、numericScale等属性
   private final List<ParameterMapping> parameterMappings; 
   private final Configuration configuration;
 
