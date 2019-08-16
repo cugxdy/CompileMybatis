@@ -33,6 +33,7 @@ import org.apache.ibatis.session.Configuration;
  *
  * @author Clinton Begin
  */
+// 
 public class BoundSql {
 	
   // 该字段中记录了SQL语句，该SQL语句可能含有"?"占位符
