@@ -23,6 +23,7 @@ import org.apache.ibatis.parsing.XNode;
 import org.apache.ibatis.scripting.defaults.DefaultParameterHandler;
 import org.apache.ibatis.session.Configuration;
 
+// 它制定了ParameterHandler对象与创建SqlSource对象的规范
 public interface LanguageDriver {
 
   /**
@@ -46,6 +47,7 @@ public interface LanguageDriver {
    * @param parameterType input parameter type got from a mapper method or specified in the parameterType xml attribute. Can be null.
    * @return
    */
+  // 它是用来解析MyBatis中Sql元素节点的方法
   SqlSource createSqlSource(Configuration configuration, XNode script, Class<?> parameterType);
 
   /**
