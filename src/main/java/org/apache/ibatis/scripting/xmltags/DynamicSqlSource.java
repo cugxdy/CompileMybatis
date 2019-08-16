@@ -34,6 +34,7 @@ public class DynamicSqlSource implements SqlSource {
   // 动态节点的节点,包含嵌套的,在后面执行数据库查询的时候,会解析这个contents集合
   private final SqlNode rootSqlNode; // MixedSqlNode对象
 
+  // 创建DynamicSqlSource对象
   public DynamicSqlSource(Configuration configuration, SqlNode rootSqlNode) {
     this.configuration = configuration; // 全局配置信息
     this.rootSqlNode = rootSqlNode; // Sql节点
@@ -50,6 +51,8 @@ public class DynamicSqlSource implements SqlSource {
     
     // 创建SqlSourceBuilder，解析参数类型，并将SQL语句中的"${}"占位符替换成"?"占位符
     SqlSourceBuilder sqlSourceParser = new SqlSourceBuilder(configuration);
+    
+    System.out.println();
     
     // 获取输入参数的Class对象
     Class<?> parameterType = parameterObject == null ? Object.class : parameterObject.getClass();
