@@ -20,6 +20,7 @@ import java.util.List;
 /**
  * @author Clinton Begin
  */
+// 它作为其SqlNode混合体,将其他类型的SqlNode存入List对象中
 public class MixedSqlNode implements SqlNode {
   private final List<SqlNode> contents;
 
@@ -29,18 +30,18 @@ public class MixedSqlNode implements SqlNode {
 
   @Override
   public boolean apply(DynamicContext context) {
-	System.out.println("=========================MixedSqlNode=======================");
-	System.out.println("MixedSqlNode = " + getClass().getName());
-	System.out.println("length = " + contents.size());
-	for(int i = 0 ;i < contents.size() ;i++) {
-		System.out.println("Class = " + contents.get(i).getClass().getName());
-		String className = contents.get(i).getClass().getName();
-		if(className.substring(className.lastIndexOf(".")+1).equals("IfSqlNode")) {
-			System.out.println("IfSqlNode:test = " + ((IfSqlNode)contents.get(i)).getText());
-		}else if(className.substring(className.lastIndexOf(".")+1).equals("StaticTextSqlNode")){
-			System.out.println("StaticTextSqlNode:text = " + ((StaticTextSqlNode)contents.get(i)).getText());
-		}
-	}
+//	System.out.println("=========================MixedSqlNode=======================");
+//	System.out.println("MixedSqlNode = " + getClass().getName());
+//	System.out.println("length = " + contents.size());
+//	for(int i = 0 ;i < contents.size() ;i++) {
+//		System.out.println("Class = " + contents.get(i).getClass().getName());
+//		String className = contents.get(i).getClass().getName();
+//		if(className.substring(className.lastIndexOf(".")+1).equals("IfSqlNode")) {
+//			System.out.println("IfSqlNode:test = " + ((IfSqlNode)contents.get(i)).getText());
+//		}else if(className.substring(className.lastIndexOf(".")+1).equals("StaticTextSqlNode")){
+//			System.out.println("StaticTextSqlNode:text = " + ((StaticTextSqlNode)contents.get(i)).getText());
+//		}
+//	}
     for (SqlNode sqlNode : contents) {
       sqlNode.apply(context);
     }
