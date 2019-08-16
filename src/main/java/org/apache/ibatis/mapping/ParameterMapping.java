@@ -25,6 +25,7 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
 /**
  * @author Clinton Begin
  */
+// 它是用于存储#{property,javaType=int}解析成的数据信息
 public class ParameterMapping {
 
   private Configuration configuration;
@@ -53,30 +54,35 @@ public class ParameterMapping {
   public static class Builder {
     private ParameterMapping parameterMapping = new ParameterMapping();
 
+    // 创建Builder对象
     public Builder(Configuration configuration, String property, TypeHandler<?> typeHandler) {
       parameterMapping.configuration = configuration;
       parameterMapping.property = property;
       parameterMapping.typeHandler = typeHandler;
-      parameterMapping.mode = ParameterMode.IN;
+      parameterMapping.mode = ParameterMode.IN;// 默认为IN模式
     }
 
+    // 创建Builder对象
     public Builder(Configuration configuration, String property, Class<?> javaType) {
       parameterMapping.configuration = configuration;
       parameterMapping.property = property;
       parameterMapping.javaType = javaType;
-      parameterMapping.mode = ParameterMode.IN;
+      parameterMapping.mode = ParameterMode.IN;// 默认为IN模式
     }
 
+    // 设置参数模式
     public Builder mode(ParameterMode mode) {
       parameterMapping.mode = mode;
       return this;
     }
 
+    // 设置java类型
     public Builder javaType(Class<?> javaType) {
       parameterMapping.javaType = javaType;
       return this;
     }
 
+    // 设置jdbc类型
     public Builder jdbcType(JdbcType jdbcType) {
       parameterMapping.jdbcType = jdbcType;
       return this;
@@ -87,21 +93,25 @@ public class ParameterMapping {
       return this;
     }
 
+    // 设置嵌套查询ID
     public Builder resultMapId(String resultMapId) {
       parameterMapping.resultMapId = resultMapId;
       return this;
     }
 
+    // 设置类型处理器
     public Builder typeHandler(TypeHandler<?> typeHandler) {
       parameterMapping.typeHandler = typeHandler;
       return this;
     }
 
+    // 设置jdbcType名称
     public Builder jdbcTypeName(String jdbcTypeName) {
       parameterMapping.jdbcTypeName = jdbcTypeName;
       return this;
     }
 
+    // 设置expression属性值
     public Builder expression(String expression) {
       parameterMapping.expression = expression;
       return this;
@@ -113,6 +123,7 @@ public class ParameterMapping {
       return parameterMapping;
     }
 
+    // 检验合法性
     private void validate() {
       if (ResultSet.class.equals(parameterMapping.javaType)) {
         if (parameterMapping.resultMapId == null) { 
@@ -129,6 +140,7 @@ public class ParameterMapping {
       }
     }
 
+    // 解析类型处理器(获取类型处理器)
     private void resolveTypeHandler() {
       if (parameterMapping.typeHandler == null && parameterMapping.javaType != null) {
         Configuration configuration = parameterMapping.configuration;
@@ -139,6 +151,7 @@ public class ParameterMapping {
 
   }
 
+  // 获取property属性值
   public String getProperty() {
     return property;
   }
@@ -147,6 +160,7 @@ public class ParameterMapping {
    * Used for handling output of callable statements
    * @return
    */
+  // 获取参数模式
   public ParameterMode getMode() {
     return mode;
   }
@@ -155,6 +169,7 @@ public class ParameterMapping {
    * Used for handling output of callable statements
    * @return
    */
+  // 获取java类型
   public Class<?> getJavaType() {
     return javaType;
   }
@@ -163,6 +178,7 @@ public class ParameterMapping {
    * Used in the UnknownTypeHandler in case there is no handler for the property type
    * @return
    */
+  // 获取jdbc类型
   public JdbcType getJdbcType() {
     return jdbcType;
   }
@@ -171,6 +187,7 @@ public class ParameterMapping {
    * Used for handling output of callable statements
    * @return
    */
+  // 浮点数精度
   public Integer getNumericScale() {
     return numericScale;
   }
@@ -179,6 +196,7 @@ public class ParameterMapping {
    * Used when setting parameters to the PreparedStatement
    * @return
    */
+  // 获取类型处理器
   public TypeHandler<?> getTypeHandler() {
     return typeHandler;
   }
@@ -187,6 +205,7 @@ public class ParameterMapping {
    * Used for handling output of callable statements
    * @return
    */
+  // 获取嵌套映射ID
   public String getResultMapId() {
     return resultMapId;
   }
@@ -195,6 +214,7 @@ public class ParameterMapping {
    * Used for handling output of callable statements
    * @return
    */
+  // 获取jdbcType名称
   public String getJdbcTypeName() {
     return jdbcTypeName;
   }
@@ -203,10 +223,12 @@ public class ParameterMapping {
    * Not used
    * @return
    */
+  // 获取expression属性值,现在不支持
   public String getExpression() {
     return expression;
   }
 
+  // 返回String对象
   @Override
   public String toString() {
     final StringBuilder sb = new StringBuilder("ParameterMapping{");
