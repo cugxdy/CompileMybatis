@@ -33,7 +33,7 @@ import org.apache.ibatis.session.Configuration;
  *
  * @author Clinton Begin
  */
-// 
+// 实际可执行Sql的封装,它其中sql、传入参数,以及映射规则
 public class BoundSql {
 	
   // 该字段中记录了SQL语句，该SQL语句可能含有"?"占位符
@@ -59,27 +59,33 @@ public class BoundSql {
     this.metaParameters = configuration.newMetaObject(additionalParameters);
   }
 
+  // 返回可执行SQL语句
   public String getSql() {
     return sql;
   }
 
+  // 返回#{}解析对象
   public List<ParameterMapping> getParameterMappings() {
     return parameterMappings;
   }
 
+  // 返回参数对象
   public Object getParameterObject() {
     return parameterObject;
   }
 
+  // 判断additionalParameters是否存在某个键
   public boolean hasAdditionalParameter(String name) {
     String paramName = new PropertyTokenizer(name).getName();
     return additionalParameters.containsKey(paramName);
   }
 
+  // 将Context中bings = Map对象中key-value键值对存入metaParameters对象中
   public void setAdditionalParameter(String name, Object value) {
     metaParameters.setValue(name, value);
   }
 
+  // 从metaParameters中获取指定name值
   public Object getAdditionalParameter(String name) {
     return metaParameters.getValue(name);
   }
