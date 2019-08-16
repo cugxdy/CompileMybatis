@@ -32,8 +32,10 @@ import org.apache.ibatis.type.JdbcType;
 /**
  * @author Clinton Begin
  */
+// 解析带有#{...}字符串的SQL语句,将#{...}解析成ParameterMapping对象
 public class SqlSourceBuilder extends BaseBuilder {
 
+  // #{javaType,JdbcType,Mode,ResultMap,typeHandler,jdbcTypeName,numericScale(浮点数)}
   private static final String parameterProperties = "javaType,jdbcType,mode,numericScale,resultMap,typeHandler,jdbcTypeName";
 
   public SqlSourceBuilder(Configuration configuration) {
@@ -60,6 +62,7 @@ public class SqlSourceBuilder extends BaseBuilder {
     
     // 创建StaticSqlSource,其中封装了占位符被替换成"?"的SQL语句以及参数对应的ParameterMapping集合
     List<ParameterMapping> param = handler.getParameterMappings();
+    
     Iterator<ParameterMapping> itor = param.iterator();
     ParameterMapping mapping = null;
     System.out.println("length = " + param.size());
@@ -69,9 +72,11 @@ public class SqlSourceBuilder extends BaseBuilder {
     	System.out.println(" ");
     }
     System.out.println("=============================================================");
+    
     return new StaticSqlSource(configuration, sql, handler.getParameterMappings());
   }
 
+  // 该内部类是用于将#{...}解析成ParameterMapping对象
   private static class ParameterMappingTokenHandler extends BaseBuilder implements TokenHandler {
 
 	// 用来记录解析得到的ParameterMapping集合
@@ -101,23 +106,27 @@ public class SqlSourceBuilder extends BaseBuilder {
       return "?"; // 返回问号占位符
     }
     
-    // 解析参数属性
+    // 解析参数属性 创建ParameterMapping对象
     private ParameterMapping buildParameterMapping(String content) {
       // 解析参数的类型，并形成map。
       // 例如:#{__frc_item_0,javaType=int,jdbcType=NUMERIC,typeHandler=MyTypeHandler}
       // {"property"->"__frc_item_0","javaType"->"int","jdbcType"->"NUMERIC","typeHandler"->"MyTypeHandler"}
       System.out.println("#{} = " + content);
+      
       Map<String, String> propertiesMap = parseParameterMapping(content);
       String property = propertiesMap.get("property"); // 参数名称
       Class<?> propertyType;
       
       // 确定参数的javaType属性
+      // 当输入参数为POJO对象时
       if (metaParameters.hasGetter(property)) { // issue #448 get type from additional params
         propertyType = metaParameters.getGetterType(property);
       } else if (typeHandlerRegistry.hasTypeHandler(parameterType)) {
         propertyType = parameterType;
+        // 当输入参数为游标类型时
       } else if (JdbcType.CURSOR.name().equals(propertiesMap.get("jdbcType"))) {
         propertyType = java.sql.ResultSet.class;
+        // 输入参数类型为Map类型
       } else if (property == null || Map.class.isAssignableFrom(parameterType)) {
         propertyType = Object.class;
       } else {
@@ -133,28 +142,29 @@ public class SqlSourceBuilder extends BaseBuilder {
       ParameterMapping.Builder builder = new ParameterMapping.Builder(configuration, property, propertyType);
       Class<?> javaType = propertyType;
       String typeHandlerAlias = null;
+      
       for (Map.Entry<String, String> entry : propertiesMap.entrySet()) {
         String name = entry.getKey();
         String value = entry.getValue();
         if ("javaType".equals(name)) {
           javaType = resolveClass(value);
-          builder.javaType(javaType);
+          builder.javaType(javaType); // 设置property的java类型
         } else if ("jdbcType".equals(name)) {
-          builder.jdbcType(resolveJdbcType(value));
+          builder.jdbcType(resolveJdbcType(value));// 设置property的jdbc类型
           // mode、numericScale、resultMap、typeHandler、jdbcTypeName、property等属性
-        } else if ("mode".equals(name)) {
+        } else if ("mode".equals(name)) { // 设置property的参数模式(IN,OUT);
           builder.mode(resolveParameterMode(value));
-        } else if ("numericScale".equals(name)) {
+        } else if ("numericScale".equals(name)) {// 设置property的浮点数精度
           builder.numericScale(Integer.valueOf(value));
-        } else if ("resultMap".equals(name)) {
+        } else if ("resultMap".equals(name)) {// 设置property的嵌套映射Map对象
           builder.resultMapId(value);
-        } else if ("typeHandler".equals(name)) {
+        } else if ("typeHandler".equals(name)) { // 类型处理器
           typeHandlerAlias = value;
-        } else if ("jdbcTypeName".equals(name)) {
+        } else if ("jdbcTypeName".equals(name)) {// 设置jdbcType名称
           builder.jdbcTypeName(value);
         } else if ("property".equals(name)) {
           // Do Nothing
-        } else if ("expression".equals(name)) {
+        } else if ("expression".equals(name)) {  // 不支持expression属性
           throw new BuilderException("Expression based parameters are not supported yet");
         } else {
           throw new BuilderException("An invalid property '" + name + "' was found in mapping #{" + content + "}.  Valid properties are " + parameterProperties);
@@ -169,6 +179,7 @@ public class SqlSourceBuilder extends BaseBuilder {
       return builder.build();
     }
 
+    // 将#{...}中字符串解析成key-value键值对对象
     private Map<String, String> parseParameterMapping(String content) {
       try {
         return new ParameterExpression(content);
