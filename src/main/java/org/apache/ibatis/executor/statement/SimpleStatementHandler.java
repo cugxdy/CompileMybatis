@@ -34,18 +34,22 @@ import org.apache.ibatis.session.RowBounds;
 /**
  * @author Clinton Begin
  */
+// simpleStatement对象,它用于调用select count(*) from user类型SQL语句
 public class SimpleStatementHandler extends BaseStatementHandler {
 
   public SimpleStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
     super(executor, mappedStatement, parameter, rowBounds, resultHandler, boundSql);
   }
 
-  @Override
+  @Override// 返回因update操作而受影响的行数
   public int update(Statement statement) throws SQLException {
-    String sql = boundSql.getSql(); // 获取SQL语句
+    
+	String sql = boundSql.getSql(); // 获取SQL语句
     Object parameterObject = boundSql.getParameterObject(); // 获取用户传入的实参
-    // 获取配置的KeyGenerator对象
+    
+    // 获取配置的KeyGenerator对象(SelectKeyGenerator对象)
     KeyGenerator keyGenerator = mappedStatement.getKeyGenerator();
+    
     int rows;
     if (keyGenerator instanceof Jdbc3KeyGenerator) {
       statement.execute(sql, Statement.RETURN_GENERATED_KEYS); // 执行SQL语句
@@ -64,7 +68,7 @@ public class SimpleStatementHandler extends BaseStatementHandler {
     return rows;
   }
 
-  @Override
+  @Override// 批量执行(将sql存储起来,特定时间在触发执行)
   public void batch(Statement statement) throws SQLException {
     String sql = boundSql.getSql();
     statement.addBatch(sql);
@@ -77,14 +81,14 @@ public class SimpleStatementHandler extends BaseStatementHandler {
     return resultSetHandler.<E>handleResultSets(statement); // 映射结果集
   }
 
-  @Override
+  @Override// 查询游标对象
   public <E> Cursor<E> queryCursor(Statement statement) throws SQLException {
     String sql = boundSql.getSql();
     statement.execute(sql);
     return resultSetHandler.<E>handleCursorResultSets(statement);
   }
 
-  @Override
+  @Override// 创建Statement对象
   protected Statement instantiateStatement(Connection connection) throws SQLException {
     // 设置结果集是否可以滚动及其游标是否可以上下移动，设置结果是否可更新
 	if (mappedStatement.getResultSetType() != null) {
