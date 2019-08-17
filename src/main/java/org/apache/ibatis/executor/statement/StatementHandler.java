@@ -29,6 +29,7 @@ import org.apache.ibatis.session.ResultHandler;
  * @author Clinton Begin
  */
 // 它主要是创建Statement对象，为Sql语句绑定实参，执行select、insert、update、delete等多种类型的SQL语句
+// 它定义了StatementHandler处理的基本规则 
 public interface StatementHandler {
 
   // 从连接中获取一个Statement
