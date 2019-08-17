@@ -37,40 +37,46 @@ import org.apache.ibatis.type.JdbcType;
 /**
  * @author Clinton Begin
  */
+// 它实现了调用数据库存储过程的调用类,对输出参数(OUT)的分析
 public class CallableStatementHandler extends BaseStatementHandler {
 
+  // 创建CallableStatementHandler
   public CallableStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
-    super(executor, mappedStatement, parameter, rowBounds, resultHandler, boundSql);
+    // --> BaseStatementHandler类
+	super(executor, mappedStatement, parameter, rowBounds, resultHandler, boundSql);
   }
 
-  @Override
+  @Override// 更新SQL语句(最后根据输出参数赋值进输入参数对象中)
   public int update(Statement statement) throws SQLException {
     CallableStatement cs = (CallableStatement) statement;
     cs.execute();
     int rows = cs.getUpdateCount();
+    // 获取数据库生成的主键,并存入输入参数对象中
     Object parameterObject = boundSql.getParameterObject();
     KeyGenerator keyGenerator = mappedStatement.getKeyGenerator();
     keyGenerator.processAfter(executor, mappedStatement, cs, parameterObject);
+    // 处理输出参数
     resultSetHandler.handleOutputParameters(cs);
     return rows;
   }
 
-  @Override
+  @Override// 批处理程序
   public void batch(Statement statement) throws SQLException {
     CallableStatement cs = (CallableStatement) statement;
     cs.addBatch();
   }
 
-  @Override
+  @Override// 存储过程中的查询语句(需要处理输出参数)
   public <E> List<E> query(Statement statement, ResultHandler resultHandler) throws SQLException {
     CallableStatement cs = (CallableStatement) statement;
     cs.execute();
+    // 处理结果集对象
     List<E> resultList = resultSetHandler.<E>handleResultSets(cs);
     resultSetHandler.handleOutputParameters(cs);
     return resultList;
   }
 
-  @Override
+  @Override// 存储过程中的查询游标对象(处理输出参数)
   public <E> Cursor<E> queryCursor(Statement statement) throws SQLException {
     CallableStatement cs = (CallableStatement) statement;
     cs.execute();
@@ -79,7 +85,7 @@ public class CallableStatementHandler extends BaseStatementHandler {
     return resultList;
   }
 
-  @Override
+  @Override// 创建Statement对象
   protected Statement instantiateStatement(Connection connection) throws SQLException {
     String sql = boundSql.getSql();
     if (mappedStatement.getResultSetType() != null) {
@@ -90,26 +96,33 @@ public class CallableStatementHandler extends BaseStatementHandler {
     }
   }
 
-  @Override
+  @Override// 根据输入参数去将sql填充可执行参数
   public void parameterize(Statement statement) throws SQLException {
     registerOutputParameters((CallableStatement) statement);
     parameterHandler.setParameters((CallableStatement) statement);
   }
 
+  // 注册输出参数
   private void registerOutputParameters(CallableStatement cs) throws SQLException {
-    List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
+    // 获取#{}字符串解析的ParameterMapping对象
+	List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
     for (int i = 0, n = parameterMappings.size(); i < n; i++) {
       ParameterMapping parameterMapping = parameterMappings.get(i);
+      
       if (parameterMapping.getMode() == ParameterMode.OUT || parameterMapping.getMode() == ParameterMode.INOUT) {
-        if (null == parameterMapping.getJdbcType()) {
+        // 判断jdbcType类型是否被指定
+    	if (null == parameterMapping.getJdbcType()) {
           throw new ExecutorException("The JDBC Type must be specified for output parameter.  Parameter: " + parameterMapping.getProperty());
         } else {
+          // 当numericScale不为空并且jdbcType为NUMERIC、DECIMAL类型
           if (parameterMapping.getNumericScale() != null && (parameterMapping.getJdbcType() == JdbcType.NUMERIC || parameterMapping.getJdbcType() == JdbcType.DECIMAL)) {
             cs.registerOutParameter(i + 1, parameterMapping.getJdbcType().TYPE_CODE, parameterMapping.getNumericScale());
           } else {
             if (parameterMapping.getJdbcTypeName() == null) {
+              // 注册输出参数,并设置jdbcType
               cs.registerOutParameter(i + 1, parameterMapping.getJdbcType().TYPE_CODE);
             } else {
+              // 注册输出参数,并设置jdbcType
               cs.registerOutParameter(i + 1, parameterMapping.getJdbcType().TYPE_CODE, parameterMapping.getJdbcTypeName());
             }
           }
