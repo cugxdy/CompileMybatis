@@ -32,7 +32,7 @@ import org.apache.ibatis.session.RowBounds;
 /**
  * @author Clinton Begin
  */
-// 委托模式
+// 它是委托模式,它是对具体执行对象的把控
 public class RoutingStatementHandler implements StatementHandler {
 
 	// 委托具体的实现者对象
@@ -66,37 +66,37 @@ public class RoutingStatementHandler implements StatementHandler {
 	  return delegate.prepare(connection, transactionTimeout);
   }
 
-  @Override
+  @Override// 设置参数
   public void parameterize(Statement statement) throws SQLException {
     delegate.parameterize(statement);
   }
 
-  @Override
+  @Override// 跑批任务
   public void batch(Statement statement) throws SQLException {
     delegate.batch(statement);
   }
 
-  @Override
+  @Override// 更新SQL语句
   public int update(Statement statement) throws SQLException {
     return delegate.update(statement);
   }
 
-  @Override
+  @Override// 查询SQL语句
   public <E> List<E> query(Statement statement, ResultHandler resultHandler) throws SQLException {
     return delegate.<E>query(statement, resultHandler);
   }
 
-  @Override
+  @Override// 查询游标对象
   public <E> Cursor<E> queryCursor(Statement statement) throws SQLException {
     return delegate.queryCursor(statement);
   }
 
-  @Override
+  @Override// 获取可执行SQL语句
   public BoundSql getBoundSql() {
     return delegate.getBoundSql();
   }
 
-  @Override
+  @Override// 获取参数处理器
   public ParameterHandler getParameterHandler() {
     return delegate.getParameterHandler();
   }
