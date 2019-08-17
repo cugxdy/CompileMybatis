@@ -34,32 +34,38 @@ import org.apache.ibatis.session.RowBounds;
 /**
  * @author Clinton Begin
  */
+// 它是Mybatis中默认的stateHandler处理器,完成对SQL('?')参数的设置
 public class PreparedStatementHandler extends BaseStatementHandler {
 
   public PreparedStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
     // --> BaseStatementHandler
-	  super(executor, mappedStatement, parameter, rowBounds, resultHandler, boundSql);
+	super(executor, mappedStatement, parameter, rowBounds, resultHandler, boundSql);
   }
 
-  @Override
+  
+  @Override // 执行更新数据库操作
   public int update(Statement statement) throws SQLException {
     PreparedStatement ps = (PreparedStatement) statement;
     ps.execute();
     int rows = ps.getUpdateCount();
+    // 获取调用MyBatis系统时的输入参数对象
     Object parameterObject = boundSql.getParameterObject();
+    // 获取KeyGenerator(它通常是用于数据库主键的获取)
     KeyGenerator keyGenerator = mappedStatement.getKeyGenerator();
+    
     // 自增主键的设计
     keyGenerator.processAfter(executor, mappedStatement, ps, parameterObject);
     return rows;
   }
 
-  @Override // 批量执行sql语句
+  @Override // 批量执行sql语句(即是先将SQL语句存起来,特定时间一起执行)
   public void batch(Statement statement) throws SQLException {
     PreparedStatement ps = (PreparedStatement) statement;
     ps.addBatch();
   }
 
-  @Override
+  
+  @Override// 查询Sql语句,并进行结果集
   public <E> List<E> query(Statement statement, ResultHandler resultHandler) throws SQLException {
     PreparedStatement ps = (PreparedStatement) statement;
     ps.execute();
@@ -67,7 +73,7 @@ public class PreparedStatementHandler extends BaseStatementHandler {
     return resultSetHandler.<E> handleResultSets(ps);
   }
 
-  @Override
+  @Override// 查询游标对象,并进行游标结果集处理
   public <E> Cursor<E> queryCursor(Statement statement) throws SQLException {
     PreparedStatement ps = (PreparedStatement) statement;
     ps.execute();
@@ -75,7 +81,8 @@ public class PreparedStatementHandler extends BaseStatementHandler {
     return resultSetHandler.<E> handleCursorResultSets(ps);
   }
 
-  @Override
+  // 它是根据KeyGenerator与ResultSets来创建Statement对象
+  @Override// 根据数据库连接,去创建Statement对象执行SQL语句
   protected Statement instantiateStatement(Connection connection) throws SQLException {
     
 	  String sql = boundSql.getSql();  // 获取待执行的SQL语句
@@ -94,13 +101,13 @@ public class PreparedStatementHandler extends BaseStatementHandler {
       // 设置结果集是否可以滚动以及游标是否可以上下移动，设置结果集是否可更新
       return connection.prepareStatement(sql, mappedStatement.getResultSetType().getValue(), ResultSet.CONCUR_READ_ONLY);
     } else {
-    	
       System.out.println("正常sql语句执行到这里-------------------------------------");
       return connection.prepareStatement(sql); // 创建普通的Statement对象
     }
   }
 
-  @Override
+  
+  @Override// 为sql语句设置实参(设置可执行的Sql语句)
   public void parameterize(Statement statement) throws SQLException {
 	  System.out.println("parameterHandler = " + parameterHandler.getClass().getName());
 	  System.out.println("resultSetHandler = " + resultSetHandler.getClass().getName());
