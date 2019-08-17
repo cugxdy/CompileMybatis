@@ -36,11 +36,13 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
 /**
  * @author Clinton Begin
  */
-// 模板模式
+// 模板模式(它是simple、Prepared、Callable的基类),完成基本方法的设计
 public abstract class BaseStatementHandler implements StatementHandler {
 
-  protected final Configuration configuration;
+  protected final Configuration configuration; // 全局配置对象
+  
   protected final ObjectFactory objectFactory;
+  // 类型处理器
   protected final TypeHandlerRegistry typeHandlerRegistry;
   
   // 记录使用的ResultSetHandler对象，它的主要功能是将结果集映射成结果对象
@@ -56,9 +58,10 @@ public abstract class BaseStatementHandler implements StatementHandler {
   // 记录SQL语句对应的MappedStatement和BoundSql对象
   protected final MappedStatement mappedStatement;
   
-  // RowBounds记录用户设置的offset和limit，用于结果集中定位映射的起始位置和结束位置
+  // RowBounds记录用户设置的offset和limit,用于结果集中定位映射的起始位置和结束位置!
   protected final RowBounds rowBounds;
 
+  // 存储可执行的SQL语句
   protected BoundSql boundSql;
 
   protected BaseStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
@@ -76,6 +79,7 @@ public abstract class BaseStatementHandler implements StatementHandler {
       boundSql = mappedStatement.getBoundSql(parameterObject);
     }
 
+    // 存入可执行SQL语句
     this.boundSql = boundSql;
 
     // 初始化ParameterHandler对象
@@ -84,17 +88,17 @@ public abstract class BaseStatementHandler implements StatementHandler {
     this.resultSetHandler = configuration.newResultSetHandler(executor, mappedStatement, rowBounds, parameterHandler, resultHandler, boundSql);
   }
 
-  @Override
+  @Override// 获取可执行Sql语句
   public BoundSql getBoundSql() {
     return boundSql;
   }
 
-  @Override
+  @Override// 获取参数处理器对象
   public ParameterHandler getParameterHandler() {
     return parameterHandler;
   }
 
-  @Override
+  @Override// 创建Statement对象
   public Statement prepare(Connection connection, Integer transactionTimeout) throws SQLException {
     ErrorContext.instance().sql(boundSql.getSql());
     Statement statement = null;
@@ -115,6 +119,7 @@ public abstract class BaseStatementHandler implements StatementHandler {
     }
   }
 
+  // 由子类去实现创建Statement对象
   protected abstract Statement instantiateStatement(Connection connection) throws SQLException;
 
   protected void setStatementTimeout(Statement stmt, Integer transactionTimeout) throws SQLException {
@@ -161,9 +166,11 @@ public abstract class BaseStatementHandler implements StatementHandler {
     }
   }
 
+  // 在正式执行SQL语句前执行主键查询
   protected void generateKeys(Object parameter) {
     KeyGenerator keyGenerator = mappedStatement.getKeyGenerator();
     ErrorContext.instance().store();
+    
     // 调用KeyGenerator.processBefore()方法获取主键
     keyGenerator.processBefore(executor, mappedStatement, null, parameter);
     ErrorContext.instance().recall();
