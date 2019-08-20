@@ -66,6 +66,7 @@ public class ResolverUtil<T> {
    * A simple interface that specifies how to test classes to determine if they
    * are to be included in the results produced by the ResolverUtil.
    */
+  // 匹配类,检验符合要求的Class对象
   public interface Test {
     /**
      * Will be called repeatedly with candidate classes. Must return True if a class
@@ -105,7 +106,7 @@ public class ResolverUtil<T> {
       return type != null && parent.isAssignableFrom(type);
     }
 
-    @Override
+    @Override// 返回String对象
     public String toString() {
       return "is assignable to " + parent.getSimpleName();
     }
@@ -132,14 +133,14 @@ public class ResolverUtil<T> {
       return type != null && type.isAnnotationPresent(annotation);
     }
 
-    @Override
+    @Override// 返回String对象
     public String toString() {
-      // 简单的注解声明
       return "annotated with @" + annotation.getSimpleName();
     }
   }
 
   /** The set of matches being accumulated. */
+  // 符合要求的Class对象集合
   private Set<Class<? extends T>> matches = new HashSet<Class<? extends T>>();
 
   /**
@@ -175,6 +176,7 @@ public class ResolverUtil<T> {
    *
    * @param classloader a ClassLoader to use when scanning for classes
    */
+  // 设置类加载器ClassLoader对象
   public void setClassLoader(ClassLoader classloader) {
     this.classloader = classloader;
   }
@@ -231,6 +233,7 @@ public class ResolverUtil<T> {
    * @param packageName the name of the package from which to start scanning for
    *        classes, e.g. {@code net.sourceforge.stripes}
    */
+  // packageName = net.sourceforge.stripes
   public ResolverUtil<T> find(Test test, String packageName) {
     String path = getPackagePath(packageName); //根据包名获取指定的路径
 
@@ -268,6 +271,7 @@ public class ResolverUtil<T> {
    * @param test the test used to determine if the class matches
    * @param fqn the fully qualified name of a class
    */
+  // 进行特定规则的匹配,将输入包下的文件是否符合test规则
   @SuppressWarnings("unchecked")
   protected void addIfMatching(Test test, String fqn) {
     try {
