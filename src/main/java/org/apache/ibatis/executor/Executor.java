@@ -30,6 +30,7 @@ import org.apache.ibatis.transaction.Transaction;
 /**
  * @author Clinton Begin
  */
+// 它定义了MyBatis中执行器的相关规范
 public interface Executor {
 
   @SuppressWarnings("rawtypes")
