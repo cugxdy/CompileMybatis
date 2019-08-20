@@ -45,12 +45,12 @@ public class DefaultVFS extends VFS {
   /** The magic header that indicates a JAR (ZIP) file. */
   private static final byte[] JAR_MAGIC = { 'P', 'K', 3, 4 };
 
-  @Override
+  @Override// 有效
   public boolean isValid() {
     return true;
   }
 
-  @Override // 查找指定的资源名称列表
+  @Override // 查找指定path路径下的所有文件路径
   public List<String> list(URL url, String path) throws IOException {
     InputStream is = null;
     try {
@@ -228,6 +228,7 @@ public class DefaultVFS extends VFS {
    * @return The URL of the JAR file, if one is found. Null if not.
    * @throws MalformedURLException
    */
+  // 判断文件是否为JAR文件
   protected URL findJarForResource(URL url) throws MalformedURLException {
     if (log.isDebugEnabled()) {
       log.debug("Find JAR URL: " + url);
@@ -330,8 +331,8 @@ public class DefaultVFS extends VFS {
    * 
    * @param url The URL of the resource to test.
    */
+  // 判断是否为Jar文件
   protected boolean isJar(URL url) {
-	// 判断是否为Jar文件
     return isJar(url, new byte[JAR_MAGIC.length]);
   }
 
@@ -343,6 +344,8 @@ public class DefaultVFS extends VFS {
    *            must be at least the size of {@link #JAR_MAGIC}. (The same buffer may be reused
    *            for multiple calls as an optimization.)
    */
+  // 判断文件URL是否为Jar文件
+  // 读取文件流前四个字节,来进行比较
   protected boolean isJar(URL url, byte[] buffer) {
     InputStream is = null;
     try {
