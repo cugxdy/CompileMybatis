@@ -31,16 +31,19 @@ public class TransactionalCacheManager {
   // 管理缓存对象(TransactionalCache中封装了相应的Cache对象[即对应的key值])
   private final Map<Cache, TransactionalCache> transactionalCaches = new HashMap<Cache, TransactionalCache>();
 
+  // 清空指定Cache下的缓存对象
   public void clear(Cache cache) {
 	// 调用相应的TransactionalCache对象清除缓存数据
     getTransactionalCache(cache).clear();
   }
 
+  // 从缓存中获取结果对象
   public Object getObject(Cache cache, CacheKey key) {
 	// 调用相应的TransactionalCache对象从缓存中取数据
     return getTransactionalCache(cache).getObject(key);
   }
   
+  // 向缓存中存入结果对象
   public void putObject(Cache cache, CacheKey key, Object value) {
 	// 调用相应的TransactionalCache对象向缓存中放入数据
     getTransactionalCache(cache).putObject(key, value);
@@ -63,10 +66,15 @@ public class TransactionalCacheManager {
   }
 
   // 获取TransactionalCache对象
+  // 对二级缓存对象添加装饰器TransactionalCache对象,并放入transactionalCaches对象中
   private TransactionalCache getTransactionalCache(Cache cache) {
     TransactionalCache txCache = transactionalCaches.get(cache);
+    
     if (txCache == null) {  // txCache为空时
-      txCache = new TransactionalCache(cache); // 创建TransactionalCache对象
+    	
+      // 创建TransactionalCache对象,装饰模式
+      txCache = new TransactionalCache(cache); 
+      
       transactionalCaches.put(cache, txCache);// 添加到TransactionalCaches集合
     }
     return txCache;
