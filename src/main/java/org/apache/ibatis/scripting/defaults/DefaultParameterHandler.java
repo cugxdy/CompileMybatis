@@ -36,6 +36,7 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
  * @author Clinton Begin
  * @author Eduardo Macarron
  */
+// 它为Sql语句绑定实参,使用TypeHandler对象设置SQL语句参数
 public class DefaultParameterHandler implements ParameterHandler {
 
   // TypeHandlerRegistry对象，管理mybatis中的全部TypeHandler对象
