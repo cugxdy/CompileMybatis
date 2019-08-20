@@ -18,6 +18,7 @@ package org.apache.ibatis.executor;
 /**
  * @author Clinton Begin
  */
+// 异常处理类
 public class ErrorContext {
 
   private static final String LINE_SEPARATOR = System.getProperty("line.separator","\n");
@@ -98,6 +99,7 @@ public class ErrorContext {
     return this;
   }
 
+  // 返回String对象
   @Override
   public String toString() {
     StringBuilder description = new StringBuilder();
