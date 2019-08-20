@@ -32,10 +32,11 @@ import org.apache.ibatis.session.RowBounds;
  */
 // 它主要用于SelectKeyGenerator生产主键，它会执行映射配置文件中定义的<selectKey>节点的Sql语句，该语句会获取
 // insert语句所生成的主键
+// 它是用于获取主键的形式
 public class SelectKeyGenerator implements KeyGenerator {
   
   public static final String SELECT_KEY_SUFFIX = "!selectKey";
-  // 标识<selectKey>节点下定义的SQL语句是在insert语句之前执行还是之后执行
+  // 标识<selectKey>节点下定义的SQL语句是在insert|update语句之前执行还是之后执行
   private final boolean executeBefore;
   
   //　<selectKey>节点中定义的SQL语句所对应的MappedStatement对象.该MappedStatement对象是在解析
@@ -47,13 +48,14 @@ public class SelectKeyGenerator implements KeyGenerator {
     this.keyStatement = keyStatement; // <selectKey>生成的MappedStatement
   }
 
+  // 在insert之前执行sql语句
   @Override
   public void processBefore(Executor executor, MappedStatement ms, Statement stmt, Object parameter) {
     if (executeBefore) {
       processGeneratedKeys(executor, ms, parameter);
     }
   }
-
+  // 在insert之后执行sql语句
   @Override
   public void processAfter(Executor executor, MappedStatement ms, Statement stmt, Object parameter) {
     if (!executeBefore) {
@@ -64,10 +66,13 @@ public class SelectKeyGenerator implements KeyGenerator {
   // 将主键对象中对应的属性设置到用户参数中
   private void processGeneratedKeys(Executor executor, MappedStatement ms, Object parameter) {
     try {
+    	
       // 检测用户输入的实参
       if (parameter != null && keyStatement != null && keyStatement.getKeyProperties() != null) {
-        // 获取<selectKey>节点的KeyProperties配置的属性名称，它表示主键对应的属性
+        
+    	// 获取<selectKey>节点的KeyProperties配置的属性名称，它表示主键对应的属性
     	String[] keyProperties = keyStatement.getKeyProperties();
+    	
         final Configuration configuration = ms.getConfiguration();
         // 创建用户传入的实参对象对应的MetaObject对象
         final MetaObject metaParam = configuration.newMetaObject(parameter);
@@ -76,7 +81,10 @@ public class SelectKeyGenerator implements KeyGenerator {
           // The transaction will be closed by parent executor.
           // 创建Executor对象，并执行KeyStateMent字段中记录的SQL语句，并得到主键对象
           Executor keyExecutor = configuration.newExecutor(executor.getTransaction(), ExecutorType.SIMPLE);
+          
+          // 执行<SelectKey>元素节点下的sql语句
           List<Object> values = keyExecutor.query(keyStatement, parameter, RowBounds.DEFAULT, Executor.NO_RESULT_HANDLER);
+          
           if (values.size() == 0) { // 检测value集合的长度，只能为一
             throw new ExecutorException("SelectKey returned no data.");            
           } else if (values.size() > 1) {
@@ -84,6 +92,8 @@ public class SelectKeyGenerator implements KeyGenerator {
           } else {
         	// 创建主键对象对应的MetaObject对象
             MetaObject metaResult = configuration.newMetaObject(values.get(0));
+            
+            // 将数据库查询结果设置进输入参数中
             if (keyProperties.length == 1) {
               if (metaResult.hasGetter(keyProperties[0])) {
             	// 从主键对象中获取指定属性，设置到用户参数的对应属性中
@@ -108,12 +118,20 @@ public class SelectKeyGenerator implements KeyGenerator {
     }
   }
 
+  /**
+   * 将数据库结果设置输入参数对象中
+   * @param keyProperties // 需要设置的属性
+   * @param metaParam // 输入参数对象
+   * @param metaResult // 数据库查询结果对象
+   */
   private void handleMultipleProperties(String[] keyProperties,
       MetaObject metaParam, MetaObject metaResult) {
+	  
     String[] keyColumns = keyStatement.getKeyColumns();
       
     if (keyColumns == null || keyColumns.length == 0) {
       // no key columns specified, just use the property names
+      // 将多个属性设置目标对象中
       for (String keyProperty : keyProperties) {
         setValue(metaParam, keyProperty, metaResult.getValue(keyProperty));
       }
@@ -122,11 +140,13 @@ public class SelectKeyGenerator implements KeyGenerator {
         throw new ExecutorException("If SelectKey has key columns, the number must match the number of key properties.");
       }
       for (int i = 0; i < keyProperties.length; i++) {
+    	// 将多个属性设置目标对象中
         setValue(metaParam, keyProperties[i], metaResult.getValue(keyColumns[i]));
       }
     }
   }
 
+  // 利用反射将key-value设置进参数对象中
   private void setValue(MetaObject metaParam, String property, Object value) {
     if (metaParam.hasSetter(property)) {
       metaParam.setValue(property, value);
