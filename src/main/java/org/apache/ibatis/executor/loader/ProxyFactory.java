@@ -24,7 +24,9 @@ import org.apache.ibatis.session.Configuration;
 /**
  * @author Eduardo Macarron
  */
+// 它规定了创建代理对象的方法
 public interface ProxyFactory {
+	
   // 根据配置初始化ProxyFactory对象，Mybatis提供的两个子类中，该方法都是空实现
   void setProperties(Properties properties);
   // createProxy()创建代理对象
