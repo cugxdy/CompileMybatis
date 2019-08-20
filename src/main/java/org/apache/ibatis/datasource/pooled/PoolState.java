@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * @author Clinton Begin
  */
-// 管理PooledConnection对象状态的组件
+// 它是管理PooledConnection对象状态的组件,记录连接池的状态信息
 public class PoolState {
 
   protected PooledDataSource dataSource;
@@ -32,17 +32,23 @@ public class PoolState {
   // 活跃的PooledConnection集合
   protected final List<PooledConnection> activeConnections = new ArrayList<PooledConnection>();
   
+  
   protected long requestCount = 0;  // 请求连接的次数
   
   
+  // 连接获取的累计时间
   protected long accumulatedRequestTime = 0;// 获取连接的累积时间
+  
   
   // checkoutTime表示应用从连接池取出连接，到归还连接这段时间
   // accumulatedCheckoutTime 记录了所有连接累积checkoutTime时长
   protected long accumulatedCheckoutTime = 0;
+  
   // 当连接长时间为未归还连接池时，会被该连接超时
   // claimedOverdueConnectionCount记录了超时的连接个数
   protected long claimedOverdueConnectionCount = 0;
+  
+  
   
   protected long accumulatedCheckoutTimeOfOverdueConnections = 0; // 累积超时时间
   
@@ -52,48 +58,58 @@ public class PoolState {
   
   protected long badConnectionCount = 0;// 无效的连接数
 
+  // 创建PoolState对象
   public PoolState(PooledDataSource dataSource) {
     this.dataSource = dataSource;
   }
 
+  // 获取请求计数
   public synchronized long getRequestCount() {
     return requestCount;
   }
 
+  // 获取平均请求时间
   public synchronized long getAverageRequestTime() {
     return requestCount == 0 ? 0 : accumulatedRequestTime / requestCount;
   }
 
+  // 获取平均等待时间
   public synchronized long getAverageWaitTime() {
     return hadToWaitCount == 0 ? 0 : accumulatedWaitTime / hadToWaitCount;
-
   }
 
+  // 获取等待计数
   public synchronized long getHadToWaitCount() {
     return hadToWaitCount;
   }
 
+  // 获取无效连接数
   public synchronized long getBadConnectionCount() {
     return badConnectionCount;
   }
 
+  // 获取超时连接个数
   public synchronized long getClaimedOverdueConnectionCount() {
     return claimedOverdueConnectionCount;
   }
 
+  // 获取平均超时时间
   public synchronized long getAverageOverdueCheckoutTime() {
     return claimedOverdueConnectionCount == 0 ? 0 : accumulatedCheckoutTimeOfOverdueConnections / claimedOverdueConnectionCount;
   }
 
+  // 获取连接平均使用时间
   public synchronized long getAverageCheckoutTime() {
     return requestCount == 0 ? 0 : accumulatedCheckoutTime / requestCount;
   }
 
 
+  // 获取空闲连接数
   public synchronized int getIdleConnectionCount() {
     return idleConnections.size();
   }
 
+  // 获取活跃连接数
   public synchronized int getActiveConnectionCount() {
     return activeConnections.size();
   }
