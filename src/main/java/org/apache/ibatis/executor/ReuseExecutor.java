@@ -44,11 +44,12 @@ public class ReuseExecutor extends BaseExecutor {
 
   private final Map<String, Statement> statementMap = new HashMap<String, Statement>();
 
+  // 创建ReuseExecutor对象
   public ReuseExecutor(Configuration configuration, Transaction transaction) {
     super(configuration, transaction);
   }
 
-  @Override
+  @Override // 更新语句(不重用statement对象)
   public int doUpdate(MappedStatement ms, Object parameter) throws SQLException {
     Configuration configuration = ms.getConfiguration();
     StatementHandler handler = configuration.newStatementHandler(this, ms, parameter, RowBounds.DEFAULT, null, null);
@@ -56,7 +57,7 @@ public class ReuseExecutor extends BaseExecutor {
     return handler.update(stmt);
   }
 
-  @Override
+  @Override // 查询SQL语句
   public <E> List<E> doQuery(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) throws SQLException {
     Configuration configuration = ms.getConfiguration();
     StatementHandler handler = configuration.newStatementHandler(wrapper, ms, parameter, rowBounds, resultHandler, boundSql);
@@ -64,7 +65,7 @@ public class ReuseExecutor extends BaseExecutor {
     return handler.<E>query(stmt, resultHandler);
   }
 
-  @Override
+  @Override // 查询游标SQL语句
   protected <E> Cursor<E> doQueryCursor(MappedStatement ms, Object parameter, RowBounds rowBounds, BoundSql boundSql) throws SQLException {
     Configuration configuration = ms.getConfiguration();
     StatementHandler handler = configuration.newStatementHandler(wrapper, ms, parameter, rowBounds, null, boundSql);
@@ -72,7 +73,7 @@ public class ReuseExecutor extends BaseExecutor {
     return handler.<E>queryCursor(stmt);
   }
 
-  @Override
+  @Override // 不支持批量操作
   public List<BatchResult> doFlushStatements(boolean isRollback) throws SQLException {
     for (Statement stmt : statementMap.values()) {
       closeStatement(stmt); // 遍历StatementMap集合中并关闭其中的Statement对象
@@ -84,7 +85,11 @@ public class ReuseExecutor extends BaseExecutor {
   private Statement prepareStatement(StatementHandler handler, Log statementLog) throws SQLException {
     Statement stmt;
     BoundSql boundSql = handler.getBoundSql(); 
+    
+    // 获取SQL执行语句
     String sql = boundSql.getSql();// 获取SQL语句
+    
+    // 获取statement对象
     if (hasStatementFor(sql)) { // 检测是否缓存了相同模式的SQL语句所对应的Statement对象
       stmt = getStatement(sql); // 获取StatementMap集合中缓存的Statement对象
       applyTransactionTimeout(stmt); // 修改超时时间
@@ -98,6 +103,7 @@ public class ReuseExecutor extends BaseExecutor {
     return stmt;
   }
 
+  // 判断statementMap是否特定SQL语句statement对象
   private boolean hasStatementFor(String sql) {
     try {
       return statementMap.keySet().contains(sql) && !statementMap.get(sql).getConnection().isClosed();
@@ -106,10 +112,12 @@ public class ReuseExecutor extends BaseExecutor {
     }
   }
 
+  // 获取statement对象
   private Statement getStatement(String s) {
     return statementMap.get(s);
   }
 
+  // 将sql-statement存入Map对象中
   private void putStatement(String sql, Statement stmt) {
     statementMap.put(sql, stmt);
   }
