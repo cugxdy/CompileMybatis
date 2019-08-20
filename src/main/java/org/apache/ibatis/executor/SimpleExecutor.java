@@ -34,13 +34,15 @@ import java.util.List;
 /**
  * @author Clinton Begin
  */
+// 它是最基本的SimpleExecutor执行器
 public class SimpleExecutor extends BaseExecutor {
 
+  // 创建SimpleExecutor对象
   public SimpleExecutor(Configuration configuration, Transaction transaction) {
     super(configuration, transaction);
   }
 
-  @Override
+  @Override// 更新SQL语句
   public int doUpdate(MappedStatement ms, Object parameter) throws SQLException {
     Statement stmt = null;
     try {
@@ -53,7 +55,7 @@ public class SimpleExecutor extends BaseExecutor {
     }
   }
 
-  @Override
+  @Override// 查询SQL语句
   public <E> List<E> doQuery(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) throws SQLException {
     Statement stmt = null;
     try {
@@ -99,7 +101,7 @@ public class SimpleExecutor extends BaseExecutor {
     
     stmt = handler.prepare(connection, transaction.getTimeout()); // 创建Statement对象
     handler.parameterize(stmt); // 处理占位符
-    return stmt;
+    return stmt; 
   }
 
 }
