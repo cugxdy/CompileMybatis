@@ -34,7 +34,7 @@ import org.apache.ibatis.cache.CacheException;
  * @author Eduardo Macarron
  *
  */
-// 阻塞版本的缓存装饰器，它会保证只有一个线程到数据库中查找指定key对应的数据
+// 阻塞版本的缓存装饰器，它会保证只有一个线程到数据库中查找指定key对应的数据(JDK JUC中的ReenrantLock对象)
 public class BlockingCache implements Cache {
 
   private long timeout; // 阻塞超时时长
