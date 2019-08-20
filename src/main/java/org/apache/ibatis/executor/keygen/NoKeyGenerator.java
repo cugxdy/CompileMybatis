@@ -24,6 +24,7 @@ import org.apache.ibatis.mapping.MappedStatement;
  * @author Clinton Begin
  * @author Kazuki Shimizu
  */
+// 该类不允许获取主键值,不支持主键获取
 public class NoKeyGenerator implements KeyGenerator {
 
   /**
