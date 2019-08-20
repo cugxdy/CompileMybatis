@@ -23,9 +23,9 @@ import java.sql.SQLException;
  *
  * @author Clinton Begin
  */
+// 它定义参数处理对象的规范
 public interface ParameterHandler {
 
-  
   Object getParameterObject();
   
   // 它主要负责调用PreparedStatement.set*()方法为SQL语句绑定实参
