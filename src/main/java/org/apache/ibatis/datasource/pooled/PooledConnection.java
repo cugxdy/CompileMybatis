@@ -26,6 +26,7 @@ import org.apache.ibatis.reflection.ExceptionUtil;
 /**
  * @author Clinton Begin
  */
+// 它是数据库连接池对象,它封装了真实Connection对象与代理Connection对象
 class PooledConnection implements InvocationHandler {
 
   private static final String CLOSE = "close";
@@ -58,6 +59,7 @@ class PooledConnection implements InvocationHandler {
    * @param connection - the connection that is to be presented as a pooled connection
    * @param dataSource - the dataSource that the connection is from
    */
+  // 创建PooledConnection对象
   public PooledConnection(Connection connection, PooledDataSource dataSource) {
     this.hashCode = connection.hashCode();  // 哈希值
     this.realConnection = connection; // 真实连接
@@ -100,6 +102,7 @@ class PooledConnection implements InvocationHandler {
    *
    * @return The proxy
    */
+  // 获取连接代理对象
   public Connection getProxyConnection() {
     return proxyConnection;
   }
@@ -199,6 +202,7 @@ class PooledConnection implements InvocationHandler {
    *
    * @param timestamp the timestamp
    */
+  // 设置连接从连接池取出的时间
   public void setCheckoutTimestamp(long timestamp) {
     this.checkoutTimestamp = timestamp;
   }
@@ -208,7 +212,7 @@ class PooledConnection implements InvocationHandler {
    *
    * @return the time
    */
-  // 存活时间戳
+  // 获取该连接从连接池取出已有多少时间
   public long getCheckoutTime() {
     return System.currentTimeMillis() - checkoutTimestamp;
   }
@@ -244,6 +248,7 @@ class PooledConnection implements InvocationHandler {
    * @param args   - the parameters to be passed to the method
    * @see java.lang.reflect.InvocationHandler#invoke(Object, java.lang.reflect.Method, Object[])
    */
+  // 对close方法进行特殊处理,并不是真正释放,而是加入数据库连接池中
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     
@@ -266,6 +271,7 @@ class PooledConnection implements InvocationHandler {
     }
   }
 
+  // 检测数据库连接对象
   private void checkConnection() throws SQLException {
     if (!valid) {
       throw new SQLException("Error accessing PooledConnection. Connection is invalid.");
