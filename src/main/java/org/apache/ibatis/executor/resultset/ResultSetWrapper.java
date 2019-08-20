@@ -37,9 +37,12 @@ import org.apache.ibatis.type.UnknownTypeHandler;
 
 /**
  * @author Iwao AVE!
+ *
  */
+// 它是对statement.execute()执行结果对象解析与存储,列名集合,jdbcType,javaType,Unmapped,mapped属性
 public class ResultSetWrapper {
 
+  
   private final ResultSet resultSet; // 底层封装的ResultSet对象
   
   private final TypeHandlerRegistry typeHandlerRegistry;
@@ -56,10 +59,15 @@ public class ResultSetWrapper {
   // 记录每列对应的TypeHandler对象，key为列名，value为TypeHandler集合
   private final Map<String, Map<Class<?>, TypeHandler<?>>> typeHandlerMap = new HashMap<String, Map<Class<?>, TypeHandler<?>>>();
   
-  // 记录了被映射的列名,其中key是ResultMap对象的id，value是该ResultMap对象映射的列名集合
+  
+  /**
+   * 以下两种集合为mappedColumnNamesMap和unMappedColumnNamesMap
+   * 表示在resultMap中明确指出的与未提及的
+   */
+  // 记录了被映射的列名,其中key是ResultMap对象的id:Prefix,value是该ResultMap对象映射的列名集合
   private final Map<String, List<String>> mappedColumnNamesMap = new HashMap<String, List<String>>();
   
-  // 记录了未映射的列名，其中key是ResultMap对象的id，value是该ResultMap对象的未映射的列名集合
+  // 记录了未映射的列名，其中key是ResultMap对象的id:Prefix，value是该ResultMap对象的未映射的列名集合
   private final Map<String, List<String>> unMappedColumnNamesMap = new HashMap<String, List<String>>();
 
   public ResultSetWrapper(ResultSet rs, Configuration configuration) throws SQLException {
@@ -69,8 +77,10 @@ public class ResultSetWrapper {
     
     this.resultSet = rs;
     
+    // 获取ResultSet元数据
     final ResultSetMetaData metaData = rs.getMetaData(); // 获取ResultSet的元信息
     
+    // 获取有多少列
     final int columnCount = metaData.getColumnCount();// ResultSet中的列数
     
     for (int i = 1; i <= columnCount; i++) {
@@ -84,6 +94,7 @@ public class ResultSetWrapper {
       
       // 每列对应的javaType类型
       classNames.add(metaData.getColumnClassName(i));// 该列对应的Java类型
+      
       System.out.println("=============================================================");
       System.out.println("columnName = " + metaData.getColumnName(i));
       System.out.println("jdbcTypes = " + JdbcType.forCode(metaData.getColumnType(i)).toString());
@@ -92,19 +103,23 @@ public class ResultSetWrapper {
     }
   }
 
+  // 获取结果集对象
   public ResultSet getResultSet() {
     return resultSet;
   }
 
+  // 获取每列名称集合
   public List<String> getColumnNames() {
     return this.columnNames;
   }
 
+  // 获取每列对应的javaType类型集合
   public List<String> getClassNames() {
 	// unmodifiableList()方法
     return Collections.unmodifiableList(classNames);
   }
 
+  // 获取指定列上的jdbcType类型
   public JdbcType getJdbcType(String columnName) {
     for (int i = 0 ; i < columnNames.size(); i++) {
       if (columnNames.get(i).equalsIgnoreCase(columnName)) {
@@ -119,10 +134,11 @@ public class ResultSetWrapper {
    * Tries to get from the TypeHandlerRegistry by searching for the property type.
    * If not found it gets the column JDBC type and tries to get a handler for it.
    * 
-   * @param propertyType
-   * @param columnName
+   * @param propertyType 
+   * @param columnName  数据库查询返回的结果集特定列名称
    * @return
    */
+  // 获取类型处理器
   public TypeHandler<?> getTypeHandler(Class<?> propertyType, String columnName) {
     TypeHandler<?> handler = null;// 初始化TypeHandler对象
     
@@ -139,7 +155,7 @@ public class ResultSetWrapper {
       handler = columnHandlers.get(propertyType);
     }
     if (handler == null) {
-      // 获取JdbcType类型
+      // 获取该列的JdbcType类型
       JdbcType jdbcType = getJdbcType(columnName);
       // 从typeHandlerRegistry获取相应的处理器
       handler = typeHandlerRegistry.getTypeHandler(propertyType, jdbcType);
@@ -149,19 +165,22 @@ public class ResultSetWrapper {
       if (handler == null || handler instanceof UnknownTypeHandler) {
     	// 获取索引号
         final int index = columnNames.indexOf(columnName);
+        
         // 获取对应的javaType类型的Class对象
         final Class<?> javaType = resolveClass(classNames.get(index));
         // javaType与jdbcType不为空
         if (javaType != null && jdbcType != null) {
           handler = typeHandlerRegistry.getTypeHandler(javaType, jdbcType);
-        } else if (javaType != null) {
+        } else if (javaType != null) { // 根据javaType获取类型处理器
           handler = typeHandlerRegistry.getTypeHandler(javaType);
-        } else if (jdbcType != null) {
+        } else if (jdbcType != null) { // 根据jdbcType获取类型处理器
           handler = typeHandlerRegistry.getTypeHandler(jdbcType);
         }
+        
       }
       if (handler == null || handler instanceof UnknownTypeHandler) {
-        handler = new ObjectTypeHandler();
+        // 创建ObjectTypeHandler对象
+    	handler = new ObjectTypeHandler();
       }
       columnHandlers.put(propertyType, handler);
     }
@@ -180,6 +199,7 @@ public class ResultSetWrapper {
     }
     return null;
   }
+  
   //  将明确需要映射的列和未明确映射的列添加到各自的集合中
   private void loadMappedAndUnmappedColumnNames(ResultMap resultMap, String columnPrefix) throws SQLException {
     
@@ -193,6 +213,7 @@ public class ResultSetWrapper {
     // mappedColumns记录所有映射关系中涉及的column属性的集合
     final Set<String> mappedColumns = prependPrefixes(resultMap.getMappedColumns(), upperColumnPrefix);
     for (String columnName : columnNames) {
+    	// 转换为大小
       final String upperColumnName = columnName.toUpperCase(Locale.ENGLISH);
       // 将明确需要映射的列和未明确映射的列添加到各自的集合中
       if (mappedColumns.contains(upperColumnName)) {
@@ -207,8 +228,8 @@ public class ResultSetWrapper {
     unMappedColumnNamesMap.put(getMapKey(resultMap, columnPrefix), unmappedColumnNames);
   }
 
+  // 返回需要映射的列名集合
   public List<String> getMappedColumnNames(ResultMap resultMap, String columnPrefix) throws SQLException {
-    
 	// mappedColumnNamesMap集合中查找被映射的列名，其中key是由ResultMap的id与列前缀组成
 	List<String> mappedColumnNames = mappedColumnNamesMap.get(getMapKey(resultMap, columnPrefix));
     if (mappedColumnNames == null) {
@@ -219,6 +240,7 @@ public class ResultSetWrapper {
     return mappedColumnNames;
   }
 
+  // 返回不需要映射的列名集合
   public List<String> getUnmappedColumnNames(ResultMap resultMap, String columnPrefix) throws SQLException {
     List<String> unMappedColumnNames = unMappedColumnNamesMap.get(getMapKey(resultMap, columnPrefix));
     if (unMappedColumnNames == null) {
@@ -227,17 +249,20 @@ public class ResultSetWrapper {
     }
     return unMappedColumnNames;
   }
+  
   // 组装字符串
   private String getMapKey(ResultMap resultMap, String columnPrefix) {
     return resultMap.getId() + ":" + columnPrefix;
   }
 
+  // 将指定需要映射的列名统一加上前缀字符串
   private Set<String> prependPrefixes(Set<String> columnNames, String prefix) {
 	// columnNames记录所有映射关系中涉及的column属性的集合
     if (columnNames == null || columnNames.isEmpty() || prefix == null || prefix.length() == 0) {
       return columnNames;
     }
     final Set<String> prefixed = new HashSet<String>();
+    // 遍历Set集合对象
     for (String columnName : columnNames) {
       prefixed.add(prefix + columnName);  // 对每个columnName名称加上前缀
     }
