@@ -23,10 +23,13 @@ import org.apache.ibatis.mapping.MappedStatement;
 /**
  * @author Clinton Begin
  */
+// 它指定何时获取主键的规范,以及相应的处理方法
 public interface KeyGenerator {
-  // 在执行insert之前执行，设置属性order = “BEFORE”
+  
+	// 在执行insert、update之前执行，设置属性order = “BEFORE”
   void processBefore(Executor executor, MappedStatement ms, Statement stmt, Object parameter);
-  // 在执行insert之后执行，设置属性order = “ARTER”
+  
+  // 在执行insert、update之后执行，设置属性order = “ARTER”
   void processAfter(Executor executor, MappedStatement ms, Statement stmt, Object parameter);
 
 }
