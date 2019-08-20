@@ -20,12 +20,13 @@ import org.apache.ibatis.session.ResultContext;
 /**
  * @author Clinton Begin
  */
+// 它暂存记录单行记录解析的结果集
 public class DefaultResultContext<T> implements ResultContext<T> {
 
   // 暂存映射后的结果对象，之后会将该对象放入DefaultResultHandler.list中
   private T resultObject;
   
-  private int resultCount;// 记录经过DefaultResultContext暂存的对象个数
+  private int resultCount; // 记录经过DefaultResultContext暂存的对象个数
   
   private boolean stopped;// 控制是否停止映射
 
@@ -45,17 +46,18 @@ public class DefaultResultContext<T> implements ResultContext<T> {
     return resultCount;
   }
 
-  @Override
+  @Override// 判断该对象是否已经为STOP=true
   public boolean isStopped() {
     return stopped;
   }
 
   public void nextResultObject(T resultObject) {
-    resultCount++;
+    resultCount++; // 递增结果对象计数 
+    // 设置结果对象
     this.resultObject = resultObject;
   }
 
-  @Override
+  @Override // 设置为True
   public void stop() {
     this.stopped = true;
   }
