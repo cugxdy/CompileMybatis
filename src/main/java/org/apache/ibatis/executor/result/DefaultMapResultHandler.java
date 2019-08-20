@@ -27,6 +27,7 @@ import org.apache.ibatis.session.ResultHandler;
 /**
  * @author Clinton Begin
  */
+// 它是对返回Map对象进行最终处理的地方
 public class DefaultMapResultHandler<K, V> implements ResultHandler<V> {
 
   private final Map<K, V> mappedResults;
@@ -41,6 +42,7 @@ public class DefaultMapResultHandler<K, V> implements ResultHandler<V> {
     this.objectFactory = objectFactory;
     this.objectWrapperFactory = objectWrapperFactory;
     this.reflectorFactory = reflectorFactory;
+    // 创建存储结果对象的Map对象
     this.mappedResults = objectFactory.create(Map.class);
     this.mapKey = mapKey;
   }
@@ -53,6 +55,7 @@ public class DefaultMapResultHandler<K, V> implements ResultHandler<V> {
     final MetaObject mo = MetaObject.forObject(value, objectFactory, objectWrapperFactory, reflectorFactory);
     // TODO is that assignment always true?
     final K key = (K) mo.getValue(mapKey); // 获取mapKey的值
+    // 存放对象
     mappedResults.put(key, value);
   }
 
