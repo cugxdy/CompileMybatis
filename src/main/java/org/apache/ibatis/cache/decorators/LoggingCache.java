@@ -24,6 +24,7 @@ import org.apache.ibatis.logging.LogFactory;
 /**
  * @author Clinton Begin
  */
+// 该装饰器模式具有日志记录功能
 public class LoggingCache implements Cache {
 
   private final Log log;
@@ -36,35 +37,36 @@ public class LoggingCache implements Cache {
     this.log = LogFactory.getLog(getId());
   }
 
-  @Override
+  @Override // 获取缓存ID
   public String getId() {
     return delegate.getId();
   }
 
-  @Override
+  @Override // 获取缓存大小
   public int getSize() {
     return delegate.getSize();
   }
 
-  @Override
+  @Override // 存入对象至缓存中
   public void putObject(Object key, Object object) {
     delegate.putObject(key, object);
   }
 
   @Override
   public Object getObject(Object key) {
-    requests++;
+    requests++; // 递增获取缓存请求计数
     final Object value = delegate.getObject(key);
     if (value != null) {
-      hits++;
+      hits++; // 递增缓存命中
     }
     if (log.isDebugEnabled()) {
+      // 日志记录器
       log.debug("Cache Hit Ratio [" + getId() + "]: " + getHitRatio());
     }
     return value;
   }
 
-  @Override
+  @Override // 删除对象
   public Object removeObject(Object key) {
     return delegate.removeObject(key);
   }
@@ -79,16 +81,17 @@ public class LoggingCache implements Cache {
     return null;
   }
 
-  @Override
+  @Override // 哈希码
   public int hashCode() {
     return delegate.hashCode();
   }
 
-  @Override
+  @Override // 判断缓存对象是否相等
   public boolean equals(Object obj) {
     return delegate.equals(obj);
   }
 
+  // 计算命中率
   private double getHitRatio() {
     return (double) hits / (double) requests;
   }
