@@ -26,7 +26,7 @@ import org.apache.ibatis.builder.BuilderException;
 /**
  * @author Clinton Begin
  */
-// 
+// 它主要是处理OGNL表达式
 public class ExpressionEvaluator {
 
   public boolean evaluateBoolean(String expression, Object parameterObject) {
