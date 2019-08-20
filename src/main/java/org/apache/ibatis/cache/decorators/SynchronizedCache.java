@@ -22,7 +22,7 @@ import org.apache.ibatis.cache.Cache;
 /**
  * @author Clinton Begin
  */
-// 为cache添加同步功能
+// 它为cache添加同步功能(synchronized关键字),对线程同步
 public class SynchronizedCache implements Cache {
 
   private final Cache delegate;
