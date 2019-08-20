@@ -12,3 +12,6 @@
 10、localOutputParameterCache.putObject(key, parameter);为什么要这么做?</br>
 11、MyBatis中延迟加载的实现与特性?</br>
 12、MyBatis中一级缓存与二级缓存设计的意义,为什么需要一级缓存?</br>
+13、soft与weak在Mybatis缓存中的实现以及意义?</br>
+14、LinkedHashMap是如何保证最近最少使用的?</br>
+15、SerializedCache对序列化的支持</br>
