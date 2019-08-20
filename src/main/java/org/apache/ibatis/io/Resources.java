@@ -109,6 +109,7 @@ public class Resources {
    * @return The resource
    * @throws java.io.IOException If the resource cannot be found or read
    */
+  // 创建InputStream对象
   public static InputStream getResourceAsStream(ClassLoader loader, String resource) throws IOException {
     // ClassLoaderWrapper对象创建InputStream对象
 	InputStream in = classLoaderWrapper.getResourceAsStream(resource, loader); 
@@ -125,6 +126,7 @@ public class Resources {
    * @return The resource 
    * @throws java.io.IOException If the resource cannot be found or read
    */
+  // 创建Properties对象
   public static Properties getResourceAsProperties(String resource) throws IOException {
     Properties props = new Properties(); // 创建Properties对象
     // 创建InputStream对象
@@ -261,14 +263,17 @@ public class Resources {
    * @return The loaded class
    * @throws ClassNotFoundException If the class cannot be found (duh!)
    */
+  // load Class,即判断Class对象是否存在
   public static Class<?> classForName(String className) throws ClassNotFoundException {
     return classLoaderWrapper.classForName(className); // 生成Class对象
   }
 
+  // 获取字符串编码格式
   public static Charset getCharset() {
     return charset;
   }
 
+  // 设置字符串编码格式
   public static void setCharset(Charset charset) {
     Resources.charset = charset;
   }
