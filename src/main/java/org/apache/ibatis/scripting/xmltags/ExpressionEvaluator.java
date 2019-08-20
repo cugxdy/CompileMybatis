@@ -26,6 +26,7 @@ import org.apache.ibatis.builder.BuilderException;
 /**
  * @author Clinton Begin
  */
+// 
 public class ExpressionEvaluator {
 
   public boolean evaluateBoolean(String expression, Object parameterObject) {
@@ -65,6 +66,7 @@ public class ExpressionEvaluator {
         }
         return answer; // 返回ArrayList集合元素
     }
+    
     if (value instanceof Map) {
       return ((Map) value).entrySet();
     }
