@@ -26,6 +26,7 @@ import java.util.List;
  * 
  * @author Jeff Butler
  */
+// 批处理异常类
 public class BatchExecutorException extends ExecutorException {
 
   private static final long serialVersionUID = 154049229650533990L;
