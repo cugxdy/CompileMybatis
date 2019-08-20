@@ -26,6 +26,7 @@ import java.util.List;
  * @author Clinton Begin
  */
 // ResultSetHandler除了处理select语句查询得到结果集，还会处理存储过程执行后的输出参数
+// 它记录了statement处理之后的处理方法规范
 public interface ResultSetHandler {
 	
   // 处理结果集，生成相应的结果对象集合
