@@ -37,6 +37,7 @@ import org.apache.ibatis.transaction.TransactionFactory;
 /**
  * @author Clinton Begin
  */
+// 它是用于对延迟对象的加载,创建executor对象去执行SQL语句
 public class ResultLoader {
 
   protected final Configuration configuration; // Configuration配置对象
@@ -62,13 +63,16 @@ public class ResultLoader {
   // ResultExtractor负责将延迟加载得到的结果对象转换成targetType类型的对象
   protected final ResultExtractor resultExtractor;
   
-  protected final long creatorThreadId; // 创建ResultLoader的线程id
+  // 创建ResultLoader的线程id
+  protected final long creatorThreadId; 
   
+  // 是否已经加载完成
   protected boolean loaded;
   
   // 延迟加载得到的结果对象
   protected Object resultObject;
   
+  // 创建ResultLoader对象
   public ResultLoader(Configuration config, Executor executor, MappedStatement mappedStatement, Object parameterObject, Class<?> targetType, CacheKey cacheKey, BoundSql boundSql) {
     this.configuration = config;
     this.executor = executor;
@@ -78,10 +82,13 @@ public class ResultLoader {
     this.objectFactory = configuration.getObjectFactory();
     this.cacheKey = cacheKey;
     this.boundSql = boundSql;
+    // 创建ResultExtractor对象
     this.resultExtractor = new ResultExtractor(configuration, objectFactory);
+    // 设置当前线程ID属性
     this.creatorThreadId = Thread.currentThread().getId();
   }
 
+  // 加载结果对象
   public Object loadResult() throws SQLException {
 	// 执行延迟加载，得到结果对象，并以List的形式返回
     List<Object> list = selectList();
@@ -102,6 +109,7 @@ public class ResultLoader {
       return localExecutor.<E> query(mappedStatement, parameterObject, RowBounds.DEFAULT, Executor.NO_RESULT_HANDLER, cacheKey, boundSql);
     } finally {
       if (localExecutor != executor) {
+    	  
     	// 如果在selectList()创建新的Executor对象，需要关闭
         localExecutor.close(false);
       }
@@ -121,10 +129,12 @@ public class ResultLoader {
     }
     final TransactionFactory transactionFactory = environment.getTransactionFactory();
     final Transaction tx = transactionFactory.newTransaction(ds, null, false);
-    // 创建具体的Executor对象
+    
+    // 创建具体的Executor对象(Simple类型处理器)
     return configuration.newExecutor(tx, ExecutorType.SIMPLE);
   }
 
+  // 判断结果对象是否为空
   public boolean wasNull() {
     return resultObject == null;
   }
