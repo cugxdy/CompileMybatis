@@ -25,11 +25,14 @@ import org.apache.ibatis.session.ResultHandler;
 /**
  * @author Clinton Begin
  */
+// 它实现对结果集每行记录进行解析存储的List对象中
 public class DefaultResultHandler implements ResultHandler<Object> {
 
+  // 存储结果对象的List对象
   private final List<Object> list;
 
   public DefaultResultHandler() {
+	// 为ArrayList对象
     list = new ArrayList<Object>();
   }
 
@@ -38,11 +41,12 @@ public class DefaultResultHandler implements ResultHandler<Object> {
     list = objectFactory.create(List.class); // 创建List对象
   }
 
-  @Override
+  @Override// 向List对象中加入单行结果集解析对象
   public void handleResult(ResultContext<? extends Object> context) {
     list.add(context.getResultObject()); // 将ResultContext中保存着的结果对象保存到到list集合中
   }
 
+  // 获取结果集对象
   public List<Object> getResultList() {
     return list;
   }
