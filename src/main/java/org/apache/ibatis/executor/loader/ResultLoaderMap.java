@@ -45,6 +45,7 @@ import org.apache.ibatis.session.RowBounds;
  * @author Clinton Begin
  * @author Franta Mejta
  */
+// 它用于对多个延迟对象的存储,以便合适时机进行加载
 public class ResultLoaderMap {
 	
 	
@@ -58,8 +59,10 @@ public class ResultLoaderMap {
    * @param metaResultObject
    * @param resultLoader
    */
+  // 将延迟加载对象加入loaderMap对象集合中
   public void addLoader(String property, MetaObject metaResultObject, ResultLoader resultLoader) {
-    String upperFirst = getUppercaseFirstProperty(property);
+    // 分隔字符串
+	String upperFirst = getUppercaseFirstProperty(property);
     if (!upperFirst.equalsIgnoreCase(property) && loaderMap.containsKey(upperFirst)) {
        // 重复加载时，报错(抛出异常)
        throw new ExecutorException("Nested lazy loaded result property '" + property +
@@ -69,10 +72,12 @@ public class ResultLoaderMap {
     loaderMap.put(upperFirst, new LoadPair(property, metaResultObject, resultLoader));
   }
 
+  // 返回loaderMap对象
   public final Map<String, LoadPair> getProperties() {
     return new HashMap<String, LoadPair>(this.loaderMap);
   }
 
+  // 返回属性String集合
   public Set<String> getPropertyNames() {
 	// 返回key对应的set集合
     return loaderMap.keySet();
@@ -83,11 +88,13 @@ public class ResultLoaderMap {
     return loaderMap.size();
   }
 
+  // 判断loaderMap中是否包含指定key值对象
   public boolean hasLoader(String property) {
 	// 是否包含property
     return loaderMap.containsKey(property.toUpperCase(Locale.ENGLISH));
   }
 
+  // 加载延迟属性
   public boolean load(String property) throws SQLException {
 	// 从loadMap集合中移除指定的属性
     LoadPair pair = loaderMap.remove(property.toUpperCase(Locale.ENGLISH));
@@ -98,11 +105,12 @@ public class ResultLoaderMap {
     return false;
   }
 
+  // 从loaderMap中删除指定property属性
   public void remove(String property) {
-	// 删除指定项
     loaderMap.remove(property.toUpperCase(Locale.ENGLISH));
   }
 
+  // 加载所有的延迟属性
   public void loadAll() throws SQLException {
 	
     final Set<String> methodNameSet = loaderMap.keySet();
@@ -113,6 +121,7 @@ public class ResultLoaderMap {
     }
   }
 
+  // 返回\\.分隔字符串第一个数组元素
   private static String getUppercaseFirstProperty(String property) {
     String[] parts = property.split("\\.");
     return parts[0].toUpperCase(Locale.ENGLISH); // 获取相应的字符串
@@ -129,12 +138,14 @@ public class ResultLoaderMap {
     /**
      * Name of factory method which returns database connection.
      */
+    // getConfiguration获取数据库连接对象
     private static final String FACTORY_METHOD = "getConfiguration";
     
     
     /**
      * Object to check whether we went through serialization..
      */
+    // Object对象
     private final transient Object serializationCheck = new Object();
     
     
@@ -185,7 +196,7 @@ public class ResultLoaderMap {
     /**
      * 
      * @param property
-     * @param metaResultObject 主结果对象
+     * @param metaResultObject // 主结果对象
      * @param resultLoader // 延迟加载项
      */
     private LoadPair(final String property, MetaObject metaResultObject, ResultLoader resultLoader) {
@@ -196,16 +207,19 @@ public class ResultLoaderMap {
       /* Save required information only if original object can be serialized. */
       // 原始的javaBean对象(继承了Serializable接口的一些处理)
       if (metaResultObject != null && metaResultObject.getOriginalObject() instanceof Serializable) {
-        // 实参
+        
+    	// 实参
     	final Object mappedStatementParameter = resultLoader.parameterObject;
 
         /* @todo May the parameter be null? */
         if (mappedStatementParameter instanceof Serializable) {
+          // 获取MappedStatement对象ID,设置mappedStatement、mappedParameter、configurationFactory属性值
           this.mappedStatement = resultLoader.mappedStatement.getId();
           this.mappedParameter = (Serializable) mappedStatementParameter;
 
           this.configurationFactory = resultLoader.configuration.getConfigurationFactory();
         } else {
+          // 日志记录器
           Log log = this.getLogger();
           if (log.isDebugEnabled()) {
             log.debug("Property [" + this.property + "] of ["
@@ -217,6 +231,7 @@ public class ResultLoaderMap {
       }
     }
 
+    // 加载延迟属性
     public void load() throws SQLException {
       /* These field should not be null unless the loadpair was serialized.
        * Yet in that case this method should not be called. */
@@ -235,6 +250,7 @@ public class ResultLoaderMap {
     public void load(final Object userObject) throws SQLException {
       // 经过一系列的检测,会创建相应的ResultLoader对象
       if (this.metaResultObject == null || this.resultLoader == null) {
+    	  
         if (this.mappedParameter == null) { // mappedParameter == null 抛出异常
           throw new ExecutorException("Property [" + this.property + "] cannot be loaded because "
                   + "required parameter of mapped statement ["
@@ -274,6 +290,7 @@ public class ResultLoaderMap {
       this.metaResultObject.setValue(property, this.resultLoader.loadResult());
     }
   
+    // 获取Configuration对象
     private Configuration getConfiguration() {
       if (this.configurationFactory == null) {
         throw new ExecutorException("Cannot get Configuration as configuration factory was not set.");
@@ -283,15 +300,16 @@ public class ResultLoaderMap {
       try {
     	// 得到getConfiguration方法对应的对象
         final Method factoryMethod = this.configurationFactory.getDeclaredMethod(FACTORY_METHOD);
+        // 当getConfiguration方法不为static属性时,就抛出ExecutorException异常
         if (!Modifier.isStatic(factoryMethod.getModifiers())) {
-          // getConfiguration在非static时，抛出异常
           throw new ExecutorException("Cannot get Configuration as factory method ["
                   + this.configurationFactory + "]#["
                   + FACTORY_METHOD + "] is not static.");
         }
 
-        if (!factoryMethod.isAccessible()) {  // 判断override是否为false
-          configurationObject = AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
+        if (!factoryMethod.isAccessible()) {  
+         //  获取Configuation对象
+         configurationObject = AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
             @Override
             public Object run() throws Exception {
               try {
@@ -321,9 +339,9 @@ public class ResultLoaderMap {
                 + this.configurationFactory + "]#["
                 + FACTORY_METHOD + "] threw an exception.", ex);
       }
-
+      
+      // configurationObject不为Configuration类型时
       if (!(configurationObject instanceof Configuration)) {
-    	// configurationObject不为Configuration类型时
         throw new ExecutorException("Cannot get Configuration as factory method ["
                 + this.configurationFactory + "]#["
                 + FACTORY_METHOD + "] didn't return [" + Configuration.class + "] but ["
@@ -333,6 +351,7 @@ public class ResultLoaderMap {
       return Configuration.class.cast(configurationObject);
     }
 
+    // 获取Log对象 
     private Log getLogger() {
       if (this.log == null) {
         this.log = LogFactory.getLog(this.getClass());
@@ -341,6 +360,7 @@ public class ResultLoaderMap {
     }
   }
 
+  // 处于关闭状态下的Executor对象
   private static final class ClosedExecutor extends BaseExecutor {
 
     public ClosedExecutor() {
