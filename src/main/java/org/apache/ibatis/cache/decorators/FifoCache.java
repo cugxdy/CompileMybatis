@@ -26,7 +26,7 @@ import org.apache.ibatis.cache.Cache;
  *
  * @author Clinton Begin
  */
-// (FIFO算法，即将最老的删除)
+// 它是使用FIFO淘汰策略(FIFO算法，即将最老的删除)
 public class FifoCache implements Cache {
 
   private final Cache delegate; // 被装饰的Cache对象
@@ -36,18 +36,19 @@ public class FifoCache implements Cache {
   
   private int size;  // 记录了缓存项的上限，超过该值，则需要清理最老的缓存项
 
+  // 创建FifoCache对象
   public FifoCache(Cache delegate) {
     this.delegate = delegate;
     this.keyList = new LinkedList<Object>();
     this.size = 1024;
   }
 
-  @Override
+  @Override // 获取缓存ID
   public String getId() {
     return delegate.getId();
   }
 
-  @Override
+  @Override // 获取缓存大小
   public int getSize() {
     return delegate.getSize();
   }
@@ -62,17 +63,17 @@ public class FifoCache implements Cache {
     delegate.putObject(key, value); // 添加缓存项
   }
 
-  @Override
+  @Override // 从缓存中获取指定key的value对象
   public Object getObject(Object key) {
     return delegate.getObject(key);
   }
 
-  @Override
+  @Override // 删除缓存对象
   public Object removeObject(Object key) {
     return delegate.removeObject(key);
   }
 
-  @Override
+  @Override // 清空缓存对象
   public void clear() {
     delegate.clear();
     keyList.clear();
@@ -83,6 +84,7 @@ public class FifoCache implements Cache {
     return null;
   }
 
+  // 删除链表第一个元素
   private void cycleKeyList(Object key) {
     keyList.addLast(key); // 记录
     if (keyList.size() > size) { // 如果达到缓存上限，则清理最老的缓存项
