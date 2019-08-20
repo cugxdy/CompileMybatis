@@ -18,6 +18,7 @@ package org.apache.ibatis.executor.resultset;
 import java.util.HashMap;
 import java.util.Map;
 
+// 基本数据类型与其包装类型的映射
 public class PrimitiveTypes {
   private final Map<Class<?>, Class<?>> primitiveToWrappers;
   private final Map<Class<?>, Class<?>> wrappersToPrimitives;
