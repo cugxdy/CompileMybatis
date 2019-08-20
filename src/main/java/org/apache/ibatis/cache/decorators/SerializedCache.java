@@ -36,6 +36,8 @@ import org.apache.ibatis.io.Resources;
  * 它提供了将java对象序列化的功能，SerializedCache在添加缓存项时，会将value对应的Java对象进行序列化，并将
  * 序列化的byte[]数组作为value存入缓存，SerializedCache在获取缓存项时，会将缓存项中的byte[]数组反序列
  * 化Java对象
+ * 
+ * 它将对对象执行序列化转换成字节数组,进行存储。
  */
 public class SerializedCache implements Cache {
 
@@ -95,6 +97,7 @@ public class SerializedCache implements Cache {
     return delegate.equals(obj);
   }
 
+  // 将输入value对象执行序列化,转换成字节数组
   private byte[] serialize(Serializable value) {
     try {
       ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -102,17 +105,20 @@ public class SerializedCache implements Cache {
       oos.writeObject(value);
       oos.flush();
       oos.close();
+      // 获取字节数组
       return bos.toByteArray();
     } catch (Exception e) {
       throw new CacheException("Error serializing object.  Cause: " + e, e);
     }
   }
 
+  // 将输入字节数组转换成value对象
   private Serializable deserialize(byte[] value) {
     Serializable result;
     try {
       ByteArrayInputStream bis = new ByteArrayInputStream(value);
       ObjectInputStream ois = new CustomObjectInputStream(bis);
+      // 返回结果对象
       result = (Serializable) ois.readObject();
       ois.close();
     } catch (Exception e) {
