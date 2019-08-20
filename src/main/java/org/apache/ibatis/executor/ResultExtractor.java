@@ -25,7 +25,9 @@ import java.util.List;
 /**
  * @author Andrew Gustafson
  */
+// 创建结果对象,它是将返回结果对象转成我们需要的targetType类型
 public class ResultExtractor {
+	
   private final Configuration configuration;
   private final ObjectFactory objectFactory;
 
@@ -40,14 +42,20 @@ public class ResultExtractor {
     if (targetType != null && targetType.isAssignableFrom(list.getClass())) {
       value = list;
       // targetType是集合类型(非list)
+    
     } else if (targetType != null && objectFactory.isCollection(targetType)) {
+      
       value = objectFactory.create(targetType);
       MetaObject metaObject = configuration.newMetaObject(value);
       metaObject.addAll(list); // 调用addAll方法
+    
     } else if (targetType != null && targetType.isArray()) {
+      
       // targetType数组类型
       Class<?> arrayComponentType = targetType.getComponentType();
       Object array = Array.newInstance(arrayComponentType, list.size());
+      
+      // 将List元素转换成数组形式
       if (arrayComponentType.isPrimitive()) {
         for (int i = 0; i < list.size(); i++) {
           Array.set(array, i, list.get(i));
