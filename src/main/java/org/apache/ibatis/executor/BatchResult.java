@@ -23,12 +23,14 @@ import org.apache.ibatis.mapping.MappedStatement;
 /**
  * @author Jeff Butler
  */
+// insert、update、delete批处理结果集对象,查询不进入批处理程序中
 public class BatchResult {
 
   private final MappedStatement mappedStatement;
   private final String sql;
   private final List<Object> parameterObjects;
 
+  // insert、update、delete影响行数
   private int[] updateCounts;
 
   public BatchResult(MappedStatement mappedStatement, String sql) {
