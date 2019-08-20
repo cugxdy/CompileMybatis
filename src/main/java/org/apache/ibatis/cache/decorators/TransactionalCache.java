@@ -36,6 +36,7 @@ import org.apache.ibatis.logging.LogFactory;
  * @author Clinton Begin
  * @author Eduardo Macarron
  */
+// CachExecutor对象,它具有事务的特性,put方法时存入临时对象中,commit才存入真正的缓存对象中
 public class TransactionalCache implements Cache {
 
   private static final Log log = LogFactory.getLog(TransactionalCache.class);
@@ -52,6 +53,8 @@ public class TransactionalCache implements Cache {
   // 记录缓存未命中的CacheKey对象
   private final Set<Object> entriesMissedInCache;
 
+  
+  // 创建TransactionalCache缓存对象
   public TransactionalCache(Cache delegate) {
     this.delegate = delegate;
     this.clearOnCommit = false;
@@ -59,13 +62,13 @@ public class TransactionalCache implements Cache {
     this.entriesMissedInCache = new HashSet<Object>();
   }
 
-  @Override
+  @Override // 获取缓存对象ID
   public String getId() {
 	// 调用相应的Cache对象的实现方法
     return delegate.getId();
   }
 
-  @Override
+  @Override // 获取缓存大小
   public int getSize() {
 	// 调用相应的Cache对象的实现方法
     return delegate.getSize();
@@ -122,17 +125,20 @@ public class TransactionalCache implements Cache {
     reset();
   }
 
+  // 回滚
   public void rollback() {
 	// 将entriesMissedInCache集合中记录的缓存项在二级缓存中删除
     unlockMissedEntries();
     reset();// 重置clearOnCommit为false，并清空entriesToAddOnCommit、entriesMissedInCache集合
   }
 
+  // 重置缓存项以及未命中项
   private void reset() {
     clearOnCommit = false;
     entriesToAddOnCommit.clear();
     entriesMissedInCache.clear();
   }
+  
   // 将entriesToAddOnCommit集合中的数据保存到二级缓存(Cache对象中去)
   private void flushPendingEntries() {
 	  
@@ -148,6 +154,7 @@ public class TransactionalCache implements Cache {
     }
   }
 
+  // 删除未命中的缓存项
   private void unlockMissedEntries() {
     for (Object entry : entriesMissedInCache) {
       try {
