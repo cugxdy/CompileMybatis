@@ -14,3 +14,4 @@
 13、soft与weak在Mybatis缓存中的实现以及意义?</br>
 14、LinkedHashMap是如何保证最近最少使用的?</br>
 15、SerializedCache对序列化的支持</br>
+16、ResultMapping中foreignColumn、ResultSet提供了什么特性</br>
